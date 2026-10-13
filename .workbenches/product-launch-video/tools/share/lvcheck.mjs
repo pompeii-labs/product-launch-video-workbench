@@ -23,6 +23,11 @@ const MIN_COPY_PX = 14; // declared copy smaller than this is unreadable on a ph
 const HOLD = 0.7; // seconds a layout fault must persist to count (entrances and exits pass)
 const UNDECLARED_HOLD = 1.0;
 const UI_MIN_AREA = 0.2; // a product shot counts when it fills at least 20% of the frame
+const OUT_SCALE = 1920 / W; // the final deliverable is 1080p: judge sharpness at that size
+// Largest upscale of a captured raster in the deliverable before it reads soft: stills (logos,
+// screenshots) must hold up; recordings are filmed at 1x and blur in motion anyway.
+const MAX_UPSCALE = { still: 1.25, recording: 2 };
+const UPSCALE_MIN_AREA = 0.005; // ignore specks
 const MIN_CONTRAST = 3; // WCAG ratio for large text, measured on rendered pixels
 // The arc, in order. A beat's act may repeat (two tension beats) but never go backwards.
 const ACTS = ["hook", "tension", "turn", "payoff", "proof", "call"];
@@ -386,6 +391,8 @@ await step("probe", async () => {
   const declared = beats.flatMap((b) => (b.copy ?? []).map((c) => norm(c.text)));
   const declaredAll = declared.join("|");
   const siteText = capIndex.shots.map((s) => norm(shotText(s.id) ?? "")).join("|");
+  const upscale = new Map(); // worst upscale per shot, for the message
+  const capFiles = new Map(capIndex.shots.filter((s) => s.ok && s.file).map((s) => [path.basename(s.file), s]));
   const errs = [];
 
   // Faults that must persist to count, keyed by text, merged into time ranges.
@@ -431,16 +438,31 @@ await step("probe", async () => {
         }
       }
     }
-    for (const [k, r] of runs) if (!seen.has(k)) mark(r.kind, r.key, t, false);
 
     let best = 0;
+    const soft = new Set();
     for (const m of s.m) {
       if (m.o < 0.5) continue;
+      // A raster shown larger than its pixels is soft and grainy: the low-resolution logo defect.
+      const shot = capFiles.get(path.basename(m.src));
+      if (shot && !shot.file.endsWith(".svg") && shot.width && area(m.v) / (W * H) >= UPSCALE_MIN_AREA) {
+        const scale = Math.max(m.b.w / shot.width, m.b.h / shot.height) * OUT_SCALE;
+        const max = shot.kind === "recording" ? MAX_UPSCALE.recording : MAX_UPSCALE.still;
+        if (scale > max) {
+          const beat = beats.find((b) => t >= b.start && t < b.end)?.id ?? "end";
+          const key = `${shot.id} (${shot.width}x${shot.height}) in beat ${beat}`;
+          if (!soft.has(key)) mark("upscaled", key, t, true);
+          soft.add(key);
+          seen.add(`upscaled\u0000${key}`);
+          upscale.set(key, Math.max(upscale.get(key) ?? 0, scale));
+        }
+      }
       const frac = area(m.v) / (W * H);
       best = Math.max(best, frac);
       const id = path.basename(m.src).replace(/\.[a-z0-9]+$/i, "");
       if (frac >= 0.05) shownShots.set(id, [...(shownShots.get(id) ?? []), t]);
     }
+    for (const [k, r] of runs) if (!seen.has(k)) mark(r.kind, r.key, t, false);
     uiOn.push({ t, on: best >= UI_MIN_AREA, best });
   }
   for (const [, r] of runs) mark(r.kind, r.key, Infinity, false);
@@ -448,7 +470,9 @@ await step("probe", async () => {
     if (!r.worst) continue;
     const len = r.worst.to - r.worst.from + dt;
     const need = r.kind === "undeclared copy" ? UNDECLARED_HOLD : HOLD;
-    if (len >= need) errs.push(`"${r.key}" ${r.kind} for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s`);
+    if (len < need) continue;
+    if (r.kind === "upscaled") errs.push(`capture ${r.key} is upscaled up to ${upscale.get(r.key).toFixed(1)}x in the 1080p deliverable for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s; it will look soft. Use a vector or original file ("asset": true), capture at higher resolution, or show it smaller`);
+    else errs.push(`"${r.key}" ${r.kind} for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s`);
   }
 
   // Declared copy must be fully on screen long enough to read, inside its beat.

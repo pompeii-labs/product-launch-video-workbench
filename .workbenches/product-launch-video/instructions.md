@@ -26,7 +26,9 @@ product and for Google Fonts, which snapcn components load while rendering.
   `capture/plan.json` with Playwright: page text for research and copy
   sources (`capture/text/<id>.txt`; `"textOnly": true` saves only that),
   screenshots at 2x (`public/capture/<id>.png`), recordings when a shot sets
-  `record` (`public/capture/<id>.mp4`), and `capture/sheet.png`. Hides
+  `record` (`public/capture/<id>.mp4`), brand art at source quality when a
+  shot sets `"asset": true` (an SVG with its colours baked in, the site's
+  original image, or a transparent 4x PNG), and `capture/sheet.png`. Hides
   consent banners and chat widgets. Exit 1 when a shot fails.
 - `lvcapture [dir] --import <file> --id <id> [--text <file>]` registers a
   screenshot or recording the user supplied.
@@ -131,6 +133,11 @@ Capture
 - Playwright recordings are 1x and soft. Prefer 2x screenshots moved with
   `screen-recording`'s camera; record only when the motion is the point
   (typing, streaming output, a drag).
+- Brand art (logo, mascot, illustration) is an `"asset": true` shot: an SVG
+  when the site has one. A logo cropped from a screenshot and scaled up is
+  grainy, off-colour, and boxed in the site's background; it has shipped
+  once as the centrepiece of a video. The gate fails stills shown above
+  1.25x their pixels.
 - A login wall is a dead end. Never guess credentials. Capture what is
   public, and say in the report that a recording or screenshots of the
   signed-in product would make the video stronger.

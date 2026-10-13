@@ -1,5 +1,5 @@
 spec: 1
-version: 0.2.0
+version: 0.2.1
 
 name: product-launch-video
 description: Make a 15 to 60 second launch video that tells a product's story. Researches the product and its audience, writes the arc, animates the product's flow with snapcn's Remotion components, cuts to real footage where it proves the point, and checks every frame. Returns the MP4 and an editable video/ project.

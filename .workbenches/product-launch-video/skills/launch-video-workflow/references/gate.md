@@ -40,6 +40,9 @@ file, including video frames).
   `0.6 + 0.3 x words` seconds. Declared copy is at least 14px.
 - **Footage**: each `ui` beat shows a captured shot over 20% of the frame for
   half the beat, and shows every shot it names.
+- **Sharpness**: no captured still (screenshot, raster asset) is shown more
+  than 1.25x its pixels in the 1080p deliverable, and no recording more than
+  2x. SVG assets are exempt.
 - **Contrast**: each declared line, at the middle of its longest read,
   measures at least 3:1 between the text and what it sits on, from the
   rendered pixels.
@@ -61,6 +64,8 @@ defects:
 - Choosing `animated` mode to avoid capturing a product whose screens are
   public and are the point.
 - Wrapping a non-captured image in a capture filename.
+- Upscaling a capture with ffmpeg or another tool to pass the sharpness
+  check: the pixels are still the small ones.
 - Padding a beat with a frozen hold to meet a reading time instead of
   slowing the line.
 - Editing the probe, the gate runs, or `Root.tsx`'s wrapper.

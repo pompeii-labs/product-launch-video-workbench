@@ -2,6 +2,9 @@
 // lvcapture [dir] --import <file> --id <id> [--text <file>] : register a supplied screenshot or recording.
 //
 // A shot with "textOnly": true saves only the page text, for research and copy sources.
+// A shot with "asset": true and a selector extracts brand art at its source quality: an inline
+// <svg> as a standalone .svg with its CSS colours baked in, an <img> or CSS background as its
+// original file, else a transparent 4x PNG. Never crop brand art out of a screenshot.
 // Writes public/capture/<id>.png (or .mp4 for recordings), the page text to capture/text/<id>.txt
 // (copy sourced "site:<id>" in the manifest is checked against it), capture/index.json, and a
 // contact sheet at capture/sheet.png. Exit 1 when any planned shot failed.
@@ -114,6 +117,76 @@ async function runSteps(page, steps) {
   }
 }
 
+// Serialise an inline SVG with every computed paint style written onto its nodes, so it renders
+// the same outside the page (no CSS variables, classes, or stylesheets needed).
+async function extractAsset(page, selector, id) {
+  const loc = page.locator(selector).first();
+  await loc.waitFor({ timeout: 10000 });
+  const found = await loc.evaluate((el) => {
+    const pick = (e) => {
+      if (e instanceof SVGSVGElement || e instanceof HTMLImageElement) return e;
+      const svgs = e.querySelectorAll("svg");
+      const imgs = e.querySelectorAll("img");
+      if (svgs.length === 1 && imgs.length === 0) return svgs[0];
+      if (imgs.length === 1 && svgs.length === 0) return imgs[0];
+      return null;
+    };
+    const t = pick(el);
+    if (t instanceof HTMLImageElement) return { kind: "url", url: t.currentSrc || t.src, w: t.naturalWidth, h: t.naturalHeight };
+    if (t instanceof SVGSVGElement) {
+      const props = ["fill", "fill-opacity", "fill-rule", "stroke", "stroke-width", "stroke-opacity", "stroke-linecap", "stroke-linejoin", "stroke-dasharray", "stroke-miterlimit", "opacity", "font-family", "font-size", "font-weight", "letter-spacing", "text-anchor", "dominant-baseline", "visibility"];
+      const clone = t.cloneNode(true);
+      const src = [t, ...t.querySelectorAll("*")];
+      const dst = [clone, ...clone.querySelectorAll("*")];
+      src.forEach((n, i) => {
+        const cs = getComputedStyle(n);
+        const d = dst[i];
+        if (cs.display === "none") d.setAttribute("display", "none");
+        for (const p of props) {
+          const v = cs.getPropertyValue(p);
+          if (v) d.setAttribute(p, v);
+        }
+        if (cs.transform && cs.transform !== "none" && n !== t) d.setAttribute("style", `transform:${cs.transform};transform-origin:${cs.transformOrigin};transform-box:${cs.transformBox}`);
+        else d.removeAttribute("style");
+        d.removeAttribute("class");
+      });
+      const vb = t.viewBox?.baseVal;
+      const box = t.getBoundingClientRect();
+      const w = vb && vb.width ? vb.width : box.width;
+      const h = vb && vb.height ? vb.height : box.height;
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      clone.setAttribute("width", String(w));
+      clone.setAttribute("height", String(h));
+      return { kind: "svg", svg: new XMLSerializer().serializeToString(clone), w, h };
+    }
+    const bg = getComputedStyle(el).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/);
+    if (bg) return { kind: "url", url: new URL(bg[1], location.href).toString(), w: 0, h: 0 };
+    return { kind: "raster" };
+  });
+  if (found.kind === "svg") {
+    const file = `capture/${id}.svg`;
+    fs.writeFileSync(path.join(project, "public", file), found.svg);
+    return { file, quality: "vector", width: Math.round(found.w), height: Math.round(found.h) };
+  }
+  if (found.kind === "url") {
+    const res = await page.request.get(found.url);
+    const type = res.headers()["content-type"] ?? "";
+    const ext = type.includes("svg") ? "svg" : type.includes("png") ? "png" : type.includes("webp") ? "webp" : type.includes("jpeg") ? "jpg" : path.extname(new URL(found.url).pathname).slice(1) || "png";
+    const file = `capture/${id}.${ext}`;
+    const dest = path.join(project, "public", file);
+    fs.writeFileSync(dest, await res.body());
+    if (ext === "svg") return { file, quality: "vector", width: found.w, height: found.h };
+    const size = probeSize(dest);
+    return { file, quality: "original", ...size };
+  }
+  // No source to take: render the element alone on a transparent page at 4x.
+  await page.addStyleTag({ content: "html,body{background:transparent!important}" });
+  const file = `capture/${id}.png`;
+  const dest = path.join(project, "public", file);
+  await loc.screenshot({ path: dest, omitBackground: true, animations: "disabled" });
+  return { file, quality: "raster-4x", ...probeSize(dest) };
+}
+
 for (const shot of plan.shots ?? []) {
   if (only && !only.includes(shot.id)) continue;
   if (!ID.test(shot.id ?? "")) die(`shot id "${shot.id}" must be a lowercase slug`);
@@ -122,7 +195,7 @@ for (const shot of plan.shots ?? []) {
   const tmpVideo = path.join(process.env.HOME ?? "/tmp", ".lv-rec", shot.id);
   const context = await browser.newContext({
     viewport,
-    deviceScaleFactor: recording ? 1 : dpr,
+    deviceScaleFactor: recording ? 1 : shot.asset ? 4 : dpr,
     colorScheme: shot.colorScheme ?? plan.colorScheme ?? "light",
     reducedMotion: recording ? "no-preference" : "reduce",
     ...(recording ? { recordVideo: { dir: tmpVideo, size: viewport } } : {}),
@@ -147,6 +220,14 @@ for (const shot of plan.shots ?? []) {
       await context.close();
       upsert({ id: shot.id, ok: true, kind: "text", source: "captured", url, title, textChars: text.length, capturedAt: new Date().toISOString() });
       console.log(`ok       ${shot.id.padEnd(18)} text only, ${text.length} chars "${title.slice(0, 60)}"`);
+      continue;
+    }
+    if (shot.asset) {
+      if (!shot.selector) throw new Error("an asset shot needs a selector");
+      const got = await extractAsset(page, shot.selector, shot.id);
+      await context.close();
+      upsert({ id: shot.id, ok: true, kind: "asset", quality: got.quality, source: "captured", url, title, file: got.file, width: got.width, height: got.height, capturedAt: new Date().toISOString() });
+      console.log(`ok       ${shot.id.padEnd(18)} ${got.file} ${got.quality} ${got.width}x${got.height}`);
       continue;
     }
     if (recording) {

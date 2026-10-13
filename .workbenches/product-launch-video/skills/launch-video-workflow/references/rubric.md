@@ -60,6 +60,9 @@ Any of these is a defect even when the gate passes:
 - Captured footage cut by the frame edge for a whole beat with no camera move
   explaining it.
 - A beat whose only job is to show a page of the website.
+- Brand art that is soft, grainy, or off-colour, or sits on a rectangle of
+  another background: a logo or mascot cropped from a screenshot instead of
+  taken as an asset.
 
 ## The model's default taste: never ship these
 

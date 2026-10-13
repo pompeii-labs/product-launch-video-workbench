@@ -25,7 +25,7 @@ Rendering uses [Remotion](https://www.remotion.dev), which needs a paid company 
   runner/              OpenCode model and permission configuration
   tools/bin/
     lvnew              scaffold video/: Remotion project, manifest, capture plan, storyboard skeleton, layout probe
-    lvcapture          read and capture the live product with Playwright (page text, 2x screenshots, brand art, recordings), or import supplied files
+    lvcapture          read and capture the live product with Playwright (page text, 2x screenshots, brand art as SVG or original files, recordings), or import supplied files
     lvadd              install snapcn components offline from the vendored free registry
     lvcheck            the gate: --storyboard (seconds), draft (half scale), --final (1080p, delivered)
   tools/share/
