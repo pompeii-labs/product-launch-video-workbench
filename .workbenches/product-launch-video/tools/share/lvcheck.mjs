@@ -23,9 +23,12 @@ const MIN_COPY_PX = 14; // declared copy smaller than this is unreadable on a ph
 const HOLD = 0.7; // seconds a layout fault must persist to count (entrances and exits pass)
 const UNDECLARED_HOLD = 1.0;
 const UI_MIN_AREA = 0.2; // a product shot counts when it fills at least 20% of the frame
-const UI_SHARE_MIN = 0.3; // and is on screen that large for at least 30% of the runtime
 const MIN_CONTRAST = 3; // WCAG ratio for large text, measured on rendered pixels
-const KINDS = ["hook", "name", "product", "feature", "proof", "cta"];
+// The arc, in order. A beat's act may repeat (two tension beats) but never go backwards.
+const ACTS = ["hook", "tension", "turn", "payoff", "proof", "call"];
+const MODES = ["animated", "captured", "hybrid"];
+const ARC_FIELDS = ["audience", "insight", "proposition", "protagonist", "device", "tone", "mode", "modeWhy", "signature"];
+const STORY_SECTIONS = ["## Product", "## Audience", "## Insight", "## Arc"];
 const STEP_WARN = 240;
 
 const args = process.argv.slice(2);
@@ -104,7 +107,7 @@ try {
 report.manifestSha256 = sha256(manifestFile);
 
 const capIndex = fs.existsSync("capture/index.json") ? readJson("capture/index.json") : { shots: [] };
-const shots = new Map(capIndex.shots.filter((s) => s.ok).map((s) => [s.id, s]));
+const shots = new Map(capIndex.shots.filter((s) => s.ok && s.file).map((s) => [s.id, s])); // footage; text-only pages are copy sources
 const shotText = (id) => {
   const f = path.join("capture", "text", `${id}.txt`);
   return fs.existsSync(f) ? fs.readFileSync(f, "utf8") : null;
@@ -116,8 +119,11 @@ const readSeconds = (s) => 0.6 + 0.3 * words(s);
 function checkManifest() {
   const m = manifest;
   const errs = [];
-  if (m.version !== 1) errs.push("version must be 1");
-  for (const k of ["product", "story"]) if (typeof m[k] !== "string" || !m[k].trim()) errs.push(`"${k}" is empty`);
+  if (m.version !== 2) errs.push("version must be 2");
+  if (typeof m.product !== "string" || !m.product.trim()) errs.push(`"product" is empty`);
+  const arc = m.arc ?? {};
+  for (const k of ARC_FIELDS) if (typeof arc[k] !== "string" || !arc[k].trim()) errs.push(`arc.${k} is empty`);
+  if (arc.mode && !MODES.includes(arc.mode)) errs.push(`arc.mode must be one of ${MODES.join(", ")}`);
   if (!/^#[0-9a-fA-F]{6}$/.test(m.accent ?? "")) errs.push(`"accent" must be one #rrggbb colour`);
   const dur = m.durationSeconds;
   if (typeof dur !== "number" || dur < MIN_SECONDS || dur > MAX_SECONDS) errs.push(`durationSeconds must be ${MIN_SECONDS} to ${MAX_SECONDS}`);
@@ -128,7 +134,9 @@ function checkManifest() {
     const at = `beat ${b.id ?? i}`;
     if (!/^[a-z0-9-]+$/.test(b.id ?? "") || ids.has(b.id)) errs.push(`${at}: id must be a unique lowercase slug`);
     ids.add(b.id);
-    if (!KINDS.includes(b.kind)) errs.push(`${at}: kind must be one of ${KINDS.join(", ")}`);
+    if (!ACTS.includes(b.act)) errs.push(`${at}: act must be one of ${ACTS.join(", ")}`);
+    else if (i > 0 && ACTS.indexOf(b.act) < ACTS.indexOf(beats[i - 1].act)) errs.push(`${at}: act "${b.act}" comes after "${beats[i - 1].act}"; the arc runs ${ACTS.join(" > ")}`);
+    for (const k of ["shows", "means"]) if (typeof b[k] !== "string" || !b[k].trim()) errs.push(`${at}: "${k}" is empty (what the viewer sees, and what they understand after it)`);
     if (typeof b.start !== "number" || typeof b.end !== "number" || b.end <= b.start) errs.push(`${at}: needs numeric start < end`);
     const expected = i === 0 ? 0 : beats[i - 1].end;
     if (Math.abs(b.start - expected) > 0.05) errs.push(`${at}: starts at ${b.start}s, expected ${expected}s (beats are contiguous)`);
@@ -156,19 +164,38 @@ function checkManifest() {
     if (b.end > b.start && budget > b.end - b.start + 0.5) errs.push(`${at}: its copy needs ${budget.toFixed(1)}s to read in a ${(b.end - b.start).toFixed(1)}s beat; cut words or lengthen the beat`);
   });
   if (beats.length) {
-    if (beats[0].kind !== "hook") errs.push("the first beat must be the hook");
-    if (!["cta", "name"].includes(beats.at(-1).kind)) errs.push("the last beat must close on the cta or the name");
-    if (!beats.some((b) => b.kind === "product" && b.ui)) errs.push("no product beat with ui: true; the product must be shown");
+    if (beats[0].act !== "hook") errs.push("the first beat must be the hook");
+    if (beats.at(-1).act !== "call") errs.push("the last beat must be the call");
+    for (const act of ["tension", "turn"]) if (!beats.some((b) => b.act === act)) errs.push(`no ${act} beat; a story needs the problem felt and the product turning it`);
+    const turn = beats.find((b) => b.act === "turn");
+    if (turn && turn.start > dur * 0.5) errs.push(`the turn starts at ${turn.start}s, past half the video; the product must arrive by ${(dur * 0.5).toFixed(1)}s`);
+    const sig = beats.find((b) => b.id === arc.signature);
+    if (arc.signature && !sig) errs.push(`arc.signature "${arc.signature}" is not a beat id`);
+    else if (sig && !["turn", "payoff"].includes(sig.act)) errs.push(`the signature beat "${sig.id}" must be the turn or the payoff`);
+    if (arc.mode && arc.mode !== "animated" && !beats.some((b) => b.ui)) errs.push(`mode "${arc.mode}" needs at least one beat with ui: true showing captured footage`);
     if (Math.abs(beats.at(-1).end - dur) > 0.05) errs.push(`beats end at ${beats.at(-1).end}s but durationSeconds is ${dur}`);
-    const name = beats.find((b) => b.kind === "name");
-    const firstUi = beats.find((b) => b.ui);
-    if (name && firstUi && firstUi.start > name.end + 3) errs.push(`the product first appears ${(firstUi.start - name.end).toFixed(1)}s after the name; show it within 3s`);
   }
   if (!brief.trim()) errs.push("brief.md is missing or empty; it holds the task brief verbatim");
-  if (shots.size === 0) errs.push("no captured or imported product shots (capture/index.json); a launch video shows the real product");
+  const story = fs.existsSync("story.md") ? fs.readFileSync("story.md", "utf8") : "";
+  const templateStory = fs.readFileSync(path.join(TEMPLATE, "story.md"), "utf8");
+  const section = (h) => {
+    const i = story.indexOf(h);
+    if (i < 0) return null;
+    const rest = story.slice(i + h.length);
+    const next = rest.search(/\n## /);
+    return next < 0 ? rest : rest.slice(0, next);
+  };
+  if (!story.trim() || story === templateStory) errs.push("story.md is still the template; write the creative brief before the manifest");
+  else
+    for (const h of STORY_SECTIONS) {
+      const body = section(h);
+      if (body === null) errs.push(`story.md lacks "${h}"`);
+      else if (words(body) < 25 || templateStory.includes(body.trim())) errs.push(`story.md "${h}" is not written yet (25 words at least)`);
+    }
+  if (capIndex.shots.length === 0) errs.push("nothing captured or imported (capture/index.json); research the product's pages first");
   for (const s of capIndex.shots.filter((s) => !s.ok)) warn(`capture "${s.id}" failed: ${s.error}`);
   if (errs.length) errs.forEach((e) => fail("manifest", e));
-  else pass("manifest", `${beats.length} beats, ${dur}s, ${shots.size} shots`);
+  else pass("manifest", `${beats.length} beats, ${dur}s, ${arc.mode}, ${shots.size} shots`);
 }
 
 function checkSource() {
@@ -269,7 +296,7 @@ if (mode === "storyboard") {
       const raw = path.join(runDir, "frames", `beat-${i}.png`);
       await renderer.renderStill({ composition, serveUrl, output: raw, frame, scale: 0.5, inputProps: { lvProbe: false }, browserExecutable, chromiumOptions, logLevel: "error" });
       const cap = path.join(runDir, "frames", `beat-${i}-cap.png`);
-      captioned(raw, cap, `${i + 1} ${b.id} ${b.kind} ${b.start}-${b.end}s${b.ui ? " ui" : ""}`, 640);
+      captioned(raw, cap, `${i + 1} ${b.act} ${b.id} ${b.start}-${b.end}s${b.ui ? " ui" : ""}${b.id === manifest.arc?.signature ? " signature" : ""}`, 640);
       tiles.push(cap);
     }
     const sheet = path.join(runDir, "storyboard.png");
@@ -472,14 +499,10 @@ await step("probe", async () => {
     }
   }
   const share = uiOn.filter((u) => u.on).length / Math.max(1, uiOn.length);
-  report.productShare = Math.round(share * 100) / 100;
-  if (share < UI_SHARE_MIN) errs.push(`the real product is on screen at a readable size for ${Math.round(share * 100)}% of the video (needs ${UI_SHARE_MIN * 100}%)`);
-  const firstUi = uiOn.find((u) => u.on);
-  const name = beats.find((b) => b.kind === "name");
-  if (name && firstUi && firstUi.t > name.end + 3) errs.push(`the product first fills the frame at ${firstUi.t.toFixed(1)}s, more than 3s after the name`);
+  report.capturedShare = Math.round(share * 100) / 100;
 
   if (errs.length) errs.forEach((e) => fail("probe", e));
-  else pass("probe", `${samples.length} samples, product on screen ${Math.round(share * 100)}%`);
+  else pass("probe", `${samples.length} samples, captured footage on screen ${Math.round(share * 100)}%`);
 });
 
 // ---------- 7. contrast on rendered pixels ----------

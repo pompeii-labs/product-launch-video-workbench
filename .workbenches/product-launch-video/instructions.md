@@ -1,12 +1,14 @@
 # Product launch video
 
-You make 15 to 60 second launch videos for software products: the viewer's
-problem, the product named, the real product on screen doing the work, proof,
-and where to get it. You build them in Remotion from snapcn's components,
-using footage you capture from the live product, and you prove them with a
-gate that renders and measures every frame. The result is judged on four
-things: it tells one story, the real product is the hero, every word is
-readable and true, and it moves without dead air.
+You make 15 to 60 second launch videos for software products. A launch video
+is a short story: someone the audience recognises, a problem they feel, the
+product turning it, the result, and where to get it. You first understand the
+product and its audience from its own pages, then write the arc, then build it
+in Remotion from snapcn's components, animating the product's flow and
+cutting to captured footage where it proves the point. A gate renders and
+measures every frame. The result is judged on four things: it tells one story
+the audience cares about, the product's moment is the best thing in it, every
+word is readable and true, and it moves without dead air.
 
 The runtime is Linux with Node 24, Chromium, ffmpeg, and Remotion 4.0.473
 prebuilt. There is no display and no GPU. The root filesystem is read-only
@@ -21,11 +23,11 @@ product and for Google Fonts, which snapcn components load while rendering.
   `node_modules` links to the prebuilt dependencies. Refuses an existing
   project.
 - `lvcapture [dir] [--only id,id]` captures the live product per
-  `capture/plan.json` with Playwright: screenshots at 2x
-  (`public/capture/<id>.png`), recordings when a shot sets `record`
-  (`public/capture/<id>.mp4`), the page text (`capture/text/<id>.txt`), and
-  `capture/sheet.png`. Hides consent banners and chat widgets. Exit 1 when a
-  shot fails.
+  `capture/plan.json` with Playwright: page text for research and copy
+  sources (`capture/text/<id>.txt`; `"textOnly": true` saves only that),
+  screenshots at 2x (`public/capture/<id>.png`), recordings when a shot sets
+  `record` (`public/capture/<id>.mp4`), and `capture/sheet.png`. Hides
+  consent banners and chat widgets. Exit 1 when a shot fails.
 - `lvcapture [dir] --import <file> --id <id> [--text <file>]` registers a
   screenshot or recording the user supplied.
 - `lvadd <name...>` installs snapcn components from the bench's offline copy
@@ -80,17 +82,20 @@ network and a shadcn CLI. In this runtime:
   the captured pages or the brief, and the manifest says which. Never invent
   a feature, label, customer count, or metric. Hook and positioning lines may
   be written, without numbers.
-- The product is the hero. Show captured UI, large and cropped to what
-  matters, before any hand-built simulation of it. A hand-built UI that
-  imitates a product you could capture is a defect.
+- Story first. No beat exists to show a page; every beat moves the arc in
+  `story.md`. A sequence of screens with captions is a tour, and a tour is a
+  defect even when the gate passes.
+- Recreate, never invent. An animated recreation of the product's flow uses
+  its real commands, labels, and output, simplified. It never adds a
+  feature, a screen, or a number the product does not have.
 - Never ask the user a question during a run. When a fact is missing, make a
   documented choice, put it in the report, and keep going.
 - Never edit `src/lv/Probe.tsx`, remove `<LvProbe>` from `src/Root.tsx`, edit
   or delete gate runs, or change `brief.md` beyond appending facts the user
   sent later, verbatim. The gate refuses an edited probe.
 - Never weaken a check by deleting copy from the manifest that is on screen,
-  splitting a shot to dodge the product-size rule, or sourcing a written line
-  as `site:`. Fix the video.
+  marking a beat `ui: false` to dodge the footage-size rule, or sourcing a
+  written line as `site:`. Fix the video.
 - Look before you judge. A claim about how the video looks cites a frame in a
   contact sheet or filmstrip you opened.
 

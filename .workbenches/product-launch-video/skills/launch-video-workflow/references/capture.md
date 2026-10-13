@@ -1,28 +1,36 @@
 # Capturing the product
 
-What you capture decides the video. A launch video is only as convincing as
-the product footage in it.
+Capture serves the story in two passes: first to understand the product,
+then to get the footage and art the arc needs. Never the other way round:
+footage captured before the story exists becomes the story, and that story
+is a tour.
 
-## What to capture
+## Pass 1: research (text only)
 
-1. **The product doing its job, not its marketing page.** A landing page's
-   hero is a poster of the product. Look for the real surface: the app, a
-   public demo or playground, a docs page with live examples, a registry or
-   catalogue page, a pricing calculator. Use the marketing page for the
-   product's own words (name, headline, numbers), and as footage only when
-   nothing else is public.
-2. **One hero state**: the moment only this product delivers, fully
-   populated. This gets the most screen time.
-3. **Two or three workflow states** leading to it: the input, the work
-   happening, the result. Each is a shot in a `product` or `feature` beat.
-4. **One proof detail**: the number, badge, or result that makes the claim
-   credible, cropped tight (`selector` or `clip`).
-5. **Populated, never empty.** Empty states, loading spinners, skeletons, and
-   lorem data read as unfinished. Navigate or interact until the screen is
-   full.
+Four to eight `"textOnly": true` shots: the home page, the product or
+features page, pricing, docs or a quickstart (its real commands and output
+are what animated beats recreate), the latest changelog or blog post, and
+any "how it works" or about page. Follow the site's own navigation; read the
+links in its header and footer. If it links a GitHub repository, capture its
+README page too. Everything you capture here becomes a valid copy source.
 
-Plan four to eight shots. More shots than beats is fine; footage you do not
-use costs seconds.
+## Pass 2: footage and art
+
+Capture only what a beat in the arc shows:
+
+1. **Brand art**: the logo, mascots, illustrations, icons, as `selector`
+   shots of the element. Animated beats built from the product's own art
+   look like this product and nothing else.
+2. **Proof screens**: the real UI where the arc says "it is real": the app,
+   a public demo or playground, a dashboard, a result page. Cropped tight to
+   what proves the point (`selector` or `clip`).
+3. **The product's output**: a generated result, a report, a rendered page,
+   a terminal output in the docs. The payoff often shows this.
+4. **Populated, never empty.** Empty states, spinners, skeletons, and lorem
+   data read as unfinished. Navigate or interact until the screen is full.
+
+A marketing page's hero is a poster of the product. Use it for words and
+art, and as footage only when the arc needs exactly that frame.
 
 ## How to capture
 
@@ -37,6 +45,8 @@ use costs seconds.
   "hide": [".promo-bar", "#announcement"],
   "css": "",
   "shots": [
+    { "id": "docs", "path": "/docs/quickstart", "textOnly": true },
+    { "id": "logo", "path": "/", "selector": "header a[href='/'] svg" },
     { "id": "dashboard", "path": "/demo", "steps": [{ "waitFor": "text=Reconciled" }] },
     { "id": "match", "path": "/demo", "steps": [{ "click": "text=Invoice 1042" }, { "waitFor": ".match-panel" }], "selector": ".match-panel" },
     { "id": "search", "path": "/demo", "steps": [{ "click": "input[type=search]" }, { "type": ["input[type=search]", "unpaid over 30 days"] }, { "press": "Enter" }], "record": { "tail": 1.5 } }
@@ -45,7 +55,7 @@ use costs seconds.
 ```
 
 - Shot fields: `id` (lowercase slug), `path` or `url`, `steps`, then one of
-  `selector` (screenshot one element), `clip` (`{x, y, width, height}` in CSS
+  `textOnly` (page text only), `selector` (screenshot one element), `clip` (`{x, y, width, height}` in CSS
   pixels), `fullPage`, or `record` (`{ "tail": seconds }` to keep filming
   after the last step).
 - Steps: `click`, `fill: [selector, text]`, `type: [selector, text]` (key by

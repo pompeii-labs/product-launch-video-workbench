@@ -6,10 +6,13 @@ samples. `video/gate.json` mirrors the latest run.
 
 ## Every mode
 
-- **Manifest**: the fields and beat rules in `manifest.md`; contiguous beats;
-  hook first; a product beat with `ui: true`; the product within 3 seconds of
-  the name; each beat's copy fits its length; every copy source verifies;
-  every shot exists; `brief.md` is not empty; at least one shot captured.
+- **Manifest**: the fields and beat rules in `manifest.md`; every arc field;
+  contiguous beats; acts in order, hook first and call last, with a tension
+  and a turn, the turn before half way; the signature is a turn or payoff
+  beat; a `ui` beat unless the mode is `animated`; `shows` and `means` on
+  every beat; each beat's copy fits its length; every copy source verifies;
+  every shot exists; `brief.md` is not empty; `story.md` has its Product,
+  Audience, Insight, and Arc sections; something was captured.
 - **Source**: `src/lv/Probe.tsx` is byte-identical to the template and
   `src/Root.tsx` wraps the video in `<LvProbe>`. Draft and final also reject
   the `lvnew` skeleton.
@@ -35,9 +38,8 @@ file, including video frames).
 - **Readable**: each declared line is complete on screen at some point in
   its beat, and at least half of it is on screen (from its start) for
   `0.6 + 0.3 x words` seconds. Declared copy is at least 14px.
-- **Product**: each `ui` beat shows a captured shot over 20% of the frame for
-  half the beat, and shows every shot it names; across the video the product
-  is that large for at least 30% of the runtime.
+- **Footage**: each `ui` beat shows a captured shot over 20% of the frame for
+  half the beat, and shows every shot it names.
 - **Contrast**: each declared line, at the middle of its longest read,
   measures at least 3:1 between the text and what it sits on, from the
   rendered pixels.
@@ -56,6 +58,8 @@ defects:
   `brief.md`.
 - Marking a beat `ui: false` because its footage is small, instead of making
   the footage bigger.
+- Choosing `animated` mode to avoid capturing a product whose screens are
+  public and are the point.
 - Wrapping a non-captured image in a capture filename.
 - Padding a beat with a frozen hold to meet a reading time instead of
   slowing the line.

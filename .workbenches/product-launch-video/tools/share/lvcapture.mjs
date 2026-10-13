@@ -1,6 +1,7 @@
 // lvcapture [dir] [--only id,id] : capture the real product from a live URL, per capture/plan.json.
 // lvcapture [dir] --import <file> --id <id> [--text <file>] : register a supplied screenshot or recording.
 //
+// A shot with "textOnly": true saves only the page text, for research and copy sources.
 // Writes public/capture/<id>.png (or .mp4 for recordings), the page text to capture/text/<id>.txt
 // (copy sourced "site:<id>" in the manifest is checked against it), capture/index.json, and a
 // contact sheet at capture/sheet.png. Exit 1 when any planned shot failed.
@@ -43,7 +44,7 @@ function probeSize(file) {
 }
 
 function sheet() {
-  const files = index.shots.filter((s) => s.ok && s.file.endsWith(".png")).map((s) => path.join(project, "public", s.file));
+  const files = index.shots.filter((s) => s.ok && s.file?.endsWith(".png")).map((s) => path.join(project, "public", s.file));
   if (files.length === 0) return;
   const cols = Math.min(3, files.length);
   const rows = Math.ceil(files.length / cols);
@@ -142,6 +143,12 @@ for (const shot of plan.shots ?? []) {
     fs.writeFileSync(path.join(capDir, "text", `${shot.id}.txt`), text);
     const title = await page.title();
     let file;
+    if (shot.textOnly) {
+      await context.close();
+      upsert({ id: shot.id, ok: true, kind: "text", source: "captured", url, title, textChars: text.length, capturedAt: new Date().toISOString() });
+      console.log(`ok       ${shot.id.padEnd(18)} text only, ${text.length} chars "${title.slice(0, 60)}"`);
+      continue;
+    }
     if (recording) {
       await page.waitForTimeout((shot.record.tail ?? 1) * 1000);
       const video = page.video();

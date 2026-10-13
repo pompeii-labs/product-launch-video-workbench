@@ -6,21 +6,24 @@ with no automatic failure. The gate cannot see most of this; you can.
 
 ## Story (from the storyboard, then the contact sheet)
 
-- **3**: the six frames tell the one-line story without the copy. The hook is
-  the viewer's problem in their words. The product appears within 3 seconds
-  of its name. The hero moment holds the longest beat.
-- **2**: the story is clear with the copy; one beat is generic or could
-  belong to any product.
-- **1**: a list of features, or a logo, a tagline, and some screenshots.
+- **3**: a viewer could retell it: who it is about, what went wrong, what
+  changed, and why this product. The hook is the insight, in a line or a
+  moment the audience recognises. The tension is shown, not stated. The turn
+  happens on screen. Every beat's `means` is different.
+- **2**: there is an arc, but one act is told rather than shown (the tension
+  is a caption), or a beat repeats another's meaning.
+- **1**: a tour: screens and captions in sequence, nothing at stake, no turn
+  on screen. Compare the tour anchor in `story.md`.
 
-## Product as hero
+## The product moment
 
-- **3**: real captured UI fills most of the frame in every product beat,
-  cropped to the part that matters, and the camera pushes to the focal point.
-  You could describe what the product does from the frames alone.
-- **2**: real UI, legible, but framed loosely: a whole page where one panel
-  would do, or no push to the point.
-- **1**: the product is small, distant, blurred, or a hand-built imitation.
+- **3**: the signature beat is the best thing in the video: the product's
+  turn, made visible, in motion, with its real commands, labels, or screens.
+  You could describe what the product does from that beat alone.
+- **2**: the product's moment is clear but static, or shares the screen time
+  evenly with weaker beats.
+- **1**: the product appears only as screenshots with captions, or as an
+  invented UI it does not have.
 
 ## Type and copy
 
@@ -35,7 +38,10 @@ with no automatic failure. The gate cannot see most of this; you can.
 ## Motion and pacing
 
 - **3**: every beat moves into the next; transitions slide or wipe; timing
-  follows the components' natural lengths; the end card holds calmly.
+  follows the components' natural lengths; at least one moment of craft a
+  viewer would notice (a camera push landing on the exact element, type that
+  acts out its meaning, the brand art coming alive); the end card holds
+  calmly.
 - **2**: one beat runs long or one cut is abrupt.
 - **1**: dead air, a shot cut mid-move, fades stacking two beats, or
   everything easing the same way.
@@ -51,6 +57,9 @@ Any of these is a defect even when the gate passes:
 - An empty state, placeholder text, or "Lorem" anywhere.
 - The storyboard skeleton's cards or labels in any frame.
 - A shot that repeats an earlier shot under a different line.
+- Captured footage cut by the frame edge for a whole beat with no camera move
+  explaining it.
+- A beat whose only job is to show a page of the website.
 
 ## The model's default taste: never ship these
 
@@ -66,4 +75,6 @@ of these, change it:
   shadow.
 - Gradient text, neon glows, purple-to-blue washes.
 - A feature montage: the same screenshot under four different labels.
+- The website tour: home page, then features page, then pricing, each with a
+  caption.
 - "Introducing" followed by nothing a viewer could not guess.
