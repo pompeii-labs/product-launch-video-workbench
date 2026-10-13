@@ -1,0 +1,44 @@
+spec: 1
+version: 0.1.0
+
+name: product-launch-video
+description: Make a 15 to 60 second launch video for a software product from its live UI, built from snapcn's Remotion components and checked frame by frame. Returns the MP4 and an editable video/ project.
+
+runner: opencode
+model:
+  id: anthropic/claude-opus-5-5
+  routes:
+    - provider: openrouter
+      model: anthropic/claude-opus-5.5
+runner_config: ./runner/opencode.json
+
+instructions: ./instructions.md
+skills:
+  - ./skills/launch-video-workflow
+  - ./skills/snapcn
+  - ./skills/remotion-launch-video
+  - ./skills/remotion-product-demo
+
+tools:
+  - node
+  - ffmpeg
+  - ffprobe
+  - lvnew
+  - lvadd
+  - lvcapture
+  - lvcheck
+
+mcps: []
+env: {}
+
+requirements:
+  os: [linux]
+  cpu: 4
+  memory_gb: 8
+  disk_gb: 10
+
+runtimes:
+  docker:
+    image:
+      build: ./Dockerfile
+      context: .

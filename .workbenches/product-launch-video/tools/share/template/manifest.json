@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "product": "",
+  "url": "",
+  "story": "",
+  "accent": "",
+  "durationSeconds": 20,
+  "beats": [
+    { "id": "hook", "kind": "hook", "start": 0, "end": 3, "ui": false, "shots": [], "copy": [{ "text": "", "source": "written" }] },
+    { "id": "name", "kind": "name", "start": 3, "end": 7, "ui": false, "shots": [], "copy": [{ "text": "", "source": "site:home" }] },
+    { "id": "product", "kind": "product", "start": 7, "end": 14, "ui": true, "shots": ["home"], "copy": [] },
+    { "id": "proof", "kind": "proof", "start": 14, "end": 17, "ui": false, "shots": [], "copy": [] },
+    { "id": "cta", "kind": "cta", "start": 17, "end": 20, "ui": false, "shots": [], "copy": [{ "text": "", "source": "site:home" }] }
+  ]
+}
