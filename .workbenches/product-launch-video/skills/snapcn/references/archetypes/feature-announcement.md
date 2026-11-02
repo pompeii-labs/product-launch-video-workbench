@@ -34,7 +34,7 @@ Transitions: kicker→name `text-swap` (linear, 12f); name→payoff `text-swap` 
 | `featureName` | yes | 1–3 words ("Smart Replies", "Instant Export", "Live Sync") — infer from PR title or release notes |
 | `benefitLine` | yes | One plain-language sentence of value, e.g. "Draft ready before you hit send" — ask if not supplied |
 | `highlightWord` | yes | The one word in `benefitLine` that carries the payoff; drives `text-highlight` |
-| `kickerLabel` | no | Default `"Introducing"`; override for re-runs ("Now in beta", "Coming to all plans") |
+| `kickerLabel` | no | The component default is `"Introducing"`, which this bench bans: always pass a specific label; override for re-runs ("Now in beta", "Coming to all plans") |
 | `brand` | no | `{ accent, background }` — one accent on neutral; the background light tint inherits `accent` |
 
 ## Notes

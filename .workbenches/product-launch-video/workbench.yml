@@ -1,8 +1,8 @@
 spec: 1
-version: 0.2.1
+version: 0.3.0
 
 name: product-launch-video
-description: Make a 15 to 60 second launch video that tells a product's story. Researches the product and its audience, writes the arc, animates the product's flow with snapcn's Remotion components, cuts to real footage where it proves the point, and checks every frame. Returns the MP4 and an editable video/ project.
+description: Make a 15 to 60 second product marketing video scored with music, as a launch, a feature announcement, a changelog, or a short explainer. Researches the product and its audience, writes the arc in the format's shape, animates the product's flow with snapcn's Remotion components, cuts to real footage where it proves the point, asks for the score from a music brief, masters the mix, and checks every frame. Returns the MP4 and an editable video/ project.
 
 runner: opencode
 model:
@@ -18,6 +18,7 @@ skills:
   - ./skills/snapcn
   - ./skills/remotion-launch-video
   - ./skills/remotion-product-demo
+  - ./skills/remotion-best-practices
 
 tools:
   - node

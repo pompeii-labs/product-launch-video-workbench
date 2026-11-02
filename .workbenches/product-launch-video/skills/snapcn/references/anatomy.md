@@ -43,11 +43,11 @@ A product demo is 6 beats. **Proof** and **CTA** are optional; **Hook** and **Pr
 | # | Beat | Job | Typical content |
 |---|---|---|---|
 | 1 | **Hook** | State the problem or a bold positioning line in plain language | "Your team has tasks everywhere", "Show up in AI answers", "Don't get blocked by your machine" |
-| 2 | **Positioning** | Name the product / what it is → resolve to the lockup | "Meet Acme", "AI-Powered Work Operating System" → logo |
+| 2 | **Positioning** | Name the product / what it is → resolve to the lockup | the product's name and what it is, in its own words → logo |
 | 3 | **Product reveal** | Show the actual product surface working | chat composer typing a prompt, a terminal running, a planning timeline, a workflow graph |
 | 4 | **Features** | 2–4 capabilities, each as a quick concrete moment | a checklist running, task cards wiring up, a "designed to simplify your workflow" line |
 | 5 | **Proof** *(optional)* | Make it credible | a metric/score counting up, metric cards, "Join 12,000+ people" + testimonials, an integration landing in Slack |
-| 6 | **CTA** *(optional)* | One ask + where to go | "Build with…", a command to run, `domain.com`, logo lockup on a calm hold |
+| 6 | **CTA** *(optional)* | One ask + where to go | the brief's call to action, word for word, with the product's URL, on a calm hold |
 
 The hook usually carries the single hardest idea; features are where most of the runtime lives. Transitions between beats come from `@remotion/transitions` — snapcn ships none. Use one that MOVES the beats apart (`slide` is the default, `flip` for "going deeper"); never a `fade`, which paints the arriving beat on top of the outgoing one and leaves both legible for the whole overlap (anti-patterns 12). `text-swap` changes a line within a beat, not the beat itself.
 
@@ -65,7 +65,7 @@ Derived from a corpus of real reference demos. The good ones (several SaaS produ
 - **Generous whitespace and a single focal point per beat.** One idea on screen at a time.
 - **Cursor-driven interaction** for product beats (type, click, the button reacts).
 - **A number/score payoff** with the accent, when there's a metric to land.
-- **A calm logo lockup outro.** Optionally on a dark hold; keep it restrained.
+- **A calm end card with the brief's call to action.** Keep it restrained.
 - **Tight runtime with overlapping beats.** ~18s (short) to ~45s (standard). Length comes from story, not from listing.
 - **Show the product large and legible.** The UI sim fills the frame and reads clearly (Claude Code Security's scan→findings→fix→PR, Notion's populated dashboard) — the product is the hero, not a distant window.
 - **Long videos ride a narrative thread.** If it must run 60s+, carry it with a character / story (good Notion demo: the "Bug Wrangler" agent doing real tasks), never a feature list.

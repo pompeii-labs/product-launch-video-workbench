@@ -73,7 +73,7 @@ Write the shot list first and map every beat to a snapcn component:
 | Name | 3–9s | `announce-title` | 170 | Eyebrow, product name, tagline, mark |
 | Product | 9–15s | `hero-launch`, `laptop-frame`, `phone-frame` | 170 / 240 / 240 | Real screens, on a device |
 | Proof | 15–17s | `count-grid`, `follower-rush` | 47 / 300 | One real number |
-| Close | 17–20s | `wordmark-cut`, `block-wordmark`, `logo-flicker`, `logo-assemble` | 66 / 150 / 100 / 108 | The name, and nothing else |
+| Close | 17–20s | `wordmark-cut`, `block-wordmark`, `logo-flicker`, `logo-assemble` | 66 / 150 / 100 / 108 | The brief's call to action, word for word |
 
 Rules that save re-renders:
 
@@ -96,11 +96,11 @@ Each lands at `components/snap-cn/<name>.tsx`, and its dependencies install with
 
 ### 4. Compose
 
-One `TransitionSeries`, one sequence per beat, short fades between them. This composition
+One `TransitionSeries`, one sequence per beat, short slides between them. This composition
 typechecks and renders as written, with four screenshots in `public/`:
 
 ```tsx
-import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { staticFile } from "remotion";
 import { AnnounceTitle } from "@/components/snap-cn/announce-title";
@@ -125,18 +125,18 @@ export const LaunchVideo: React.FC = () => (
         finally_="a prompt."
       />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 2. Name the product */}
     <TransitionSeries.Sequence durationInFrames={170}>
       <AnnounceTitle
-        eyebrow="Introducing"
+        eyebrow="Now for teams"
         title="Acme 2.0"
         tagline="Billing that reconciles itself."
         symbolPath="" // your mark as an SVG path in a 0 0 100 100 box; "" shows none
       />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 3. Show the product: two real shots (image, video, or a CSS gradient stand-in) */}
     <TransitionSeries.Sequence durationInFrames={170}>
@@ -146,13 +146,13 @@ export const LaunchVideo: React.FC = () => (
         image2="linear-gradient(135deg, #0f172a, #0ea5e9)"
       />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 4. Proof: one real number */}
     <TransitionSeries.Sequence durationInFrames={60}>
       <CountGrid from="5" to="500" noun="teams" cards={shots} />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 5. Close on the name */}
     <TransitionSeries.Sequence durationInFrames={66}>
@@ -220,7 +220,7 @@ rather than cropping afterwards.
 ## Hard-won lessons
 
 - **Never invent product UI labels.** Screenshot the real app and mirror its copy.
-- **One headline and one CTA on the end card.** Use the landing page's real tagline.
+- **One headline and one CTA on the end card.** The CTA is the brief's, word for word.
 - **Ground the hook in something viewers recognise without explanation.** If it needs a
   sentence to explain, the hook is too abstract.
 - **Before/after beats simultaneous.** Land the "before" for about a second, then cut to

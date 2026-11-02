@@ -7,9 +7,12 @@ compact form of `story.md`.
 
 ```json
 {
-  "version": 2,
+  "version": 3,
+  "format": "launch",
   "product": "Driftcheck",
   "url": "https://driftcheck.dev",
+  "cta": { "text": "Catch drift before Friday. Start free." },
+  "music": { "track": "music/track.mp3" },
   "accent": "#F97316",
   "durationSeconds": 24,
   "arc": {
@@ -38,7 +41,7 @@ compact form of `story.md`.
       "copy": [] },
     { "id": "call", "act": "call", "start": 20, "end": 24, "ui": false, "shots": [],
       "shows": "the install command typed, the URL", "means": "one command",
-      "copy": [{ "text": "brew install driftcheck", "source": "site:docs" }] }
+      "copy": [{ "text": "Catch drift before Friday. Start free.", "source": "brief" }, { "text": "driftcheck.dev", "source": "site:home" }] }
   ]
 }
 ```
@@ -48,16 +51,29 @@ compact form of `story.md`.
 
 ## Fields
 
+- `format`: `launch`, `feature`, `changelog`, or `explainer`. It sets which
+  acts the beats use (`references/story.md` §4).
+- `cta.text`: the brief's call to action, word for word (else the product's
+  own, from a captured page). The last beat's copy must contain it.
+- `music.track`: the score's path under `public/`, normally
+  `music/track.mp3`. It must exist for the draft and final gates.
 - `accent`: the one accent colour, `#rrggbb`, from the product's UI.
 - `durationSeconds`: 12 to 60, equal to the last beat's `end` and to the
   composition length.
 - `arc`: every field filled. `mode` is `animated`, `captured`, or `hybrid`
-  (`references/story.md` §5). `signature` is the id of a `turn` or `payoff`
-  beat.
-- `beats`: contiguous, starting at 0. `act` is `hook`, `tension`, `turn`,
-  `payoff`, `proof`, or `call`, in that order (an act may repeat). The first
-  beat is the hook and the last the call; there is at least one tension and
-  one turn, and the turn starts before half the runtime.
+  (`references/story.md` §5). `signature` is the id of a beat whose act the
+  format allows (below).
+- `beats`: contiguous, starting at 0. `act` comes from the format's shape,
+  in its order (an act may repeat). The first beat is the hook and the last
+  the call.
+  - `launch`: hook, tension, turn, payoff, proof, call. Needs a tension and a
+    turn; the turn starts by half the runtime. Signature: turn or payoff.
+  - `feature`: hook, context, reveal, demo, payoff, call. Needs a reveal and a
+    demo; the reveal starts by 40%. Signature: reveal, demo, or payoff.
+  - `changelog`: hook, item, call. Needs two items or more; the first item
+    starts by 25%. Signature: an item.
+  - `explainer`: hook, question, how, payoff, call. Needs a question and a
+    how; the first how starts by half. Signature: how or payoff.
 - `shows`: what is literally on screen. `means`: what the viewer understands
   after it. Both required.
 - `ui: true` means the beat shows captured footage filling at least 20% of
@@ -74,7 +90,7 @@ compact form of `story.md`.
 |---|---|---|
 | `"site:<shot id>"` | the product's own words, from a captured page | the line must be in `capture/text/<id>.txt` (case and punctuation ignored) |
 | `"brief"` | words the user supplied | the line must be in `brief.md` |
-| `"written"` | your hook, story, or transition line | may not contain a digit |
+| `"written"` | your hook, story, or transition line | may not contain a digit, or a move the gate names (`references/story.md` §7) |
 
 Numbers are never written. A metric, price, count, version, or date comes
 from a captured page or the brief.

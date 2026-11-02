@@ -21,9 +21,10 @@ The single idea the viewer leaves with.
 
 ## Arc
 
-Protagonist, device, and the acts: hook, tension, turn, payoff, proof, call. For
-each: what the viewer sees, and what they understand after it. Name the signature
-moment and why only this product can claim it.
+The format (launch, feature, changelog, explainer), the protagonist, the device,
+and the acts in the format's shape. For each: what the viewer sees, and what they
+understand after it. Name the signature moment and why only this product can
+claim it.
 
 ## Mode
 
@@ -32,3 +33,8 @@ Animated, captured, or hybrid, and why for this product.
 ## Look
 
 Accent, palette, type, and brand art found on the site, with sources.
+
+## Voice
+
+The product's own voice in three lines, quoted from its pages, and the call to
+action from the brief.
