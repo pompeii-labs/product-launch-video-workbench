@@ -1,0 +1,9 @@
+{
+  "name": "lv-tools",
+  "private": true,
+  "type": "module",
+  "description": "Runtime dependencies of the lv tools. lvcapture drives the image's Chromium with this Playwright.",
+  "dependencies": {
+    "playwright": "1.60.0"
+  }
+}

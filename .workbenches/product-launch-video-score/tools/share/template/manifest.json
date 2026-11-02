@@ -1,0 +1,32 @@
+{
+  "version": 3,
+  "format": "",
+  "product": "",
+  "url": "",
+  "accent": "",
+  "durationSeconds": 24,
+  "cta": {
+    "text": ""
+  },
+  "music": {
+    "track": "music/track.mp3"
+  },
+  "arc": {
+    "audience": "",
+    "insight": "",
+    "proposition": "",
+    "protagonist": "",
+    "device": "",
+    "tone": "",
+    "mode": "hybrid",
+    "modeWhy": "",
+    "signature": "turn"
+  },
+  "beats": [
+    {"id": "hook", "act": "hook", "start": 0, "end": 3, "shows": "", "means": "", "ui": false, "shots": [], "copy": []},
+    {"id": "tension", "act": "tension", "start": 3, "end": 8, "shows": "", "means": "", "ui": false, "shots": [], "copy": []},
+    {"id": "turn", "act": "turn", "start": 8, "end": 15, "shows": "", "means": "", "ui": false, "shots": [], "copy": []},
+    {"id": "proof", "act": "proof", "start": 15, "end": 20, "shows": "", "means": "", "ui": true, "shots": ["home"], "copy": []},
+    {"id": "call", "act": "call", "start": 20, "end": 24, "shows": "", "means": "", "ui": false, "shots": [], "copy": []}
+  ]
+}

@@ -42,5 +42,5 @@ requirements:
 runtimes:
   docker:
     image:
-      build: ../product-launch-video/Dockerfile
-      context: ../product-launch-video
+      build: ./Dockerfile
+      context: .
