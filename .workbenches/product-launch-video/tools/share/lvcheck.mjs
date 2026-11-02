@@ -54,7 +54,7 @@ const SCENT = [
   [/\b(seamless(ly)?|effortless(ly)?|supercharg\w*|unleash\w*|elevat\w*|revolutioni[sz]\w*|game[- ]?chang\w*|next[- ]level|reimagin\w*|empower\w*|the power of|the future of)\b/i, "a stock marketing word"],
 ];
 // Loudness of the delivered mix: the web and social norm, measured on the rendered file.
-const LOUDNESS = { I: -14, TP: -1.5, LRA: 11, tolerance: 1.5, maxTP: -1.0 };
+const LOUDNESS = { I: -14, TP: -2, LRA: 11, tolerance: 1.5, maxTP: -1.0, limit: 0.708 }; // limit: -3 dBFS sample peak, so the AAC encode stays under maxTP
 const MUSIC_BRIEF_SECTIONS = ["## Length", "## Moments", "## Style", "## Avoid"];
 const MODES = ["animated", "captured", "hybrid"];
 const ARC_FIELDS = ["audience", "insight", "proposition", "protagonist", "device", "tone", "mode", "modeWhy", "signature"];
@@ -391,7 +391,8 @@ await step("render", async () => {
 
 // ---------- 5. master the score, then check it ----------
 
-// The mix is mastered here, the same way on every run: two-pass loudnorm to the web norm, video
+// The mix is mastered here, the same way on every run: two-pass loudnorm to the web norm and a
+// peak limiter (loudnorm alone lets the AAC encode overshoot the true-peak ceiling), video
 // copied untouched. Then the delivered file is measured: loudness, true peak, a music dropout, and
 // whether the score fades or ends with the cut instead of being chopped on the last frame.
 const duration = composition.durationInFrames / FPS;
@@ -406,7 +407,7 @@ await step("audio", async () => {
   const first = run("ffmpeg", ["-v", "info", "-i", output, "-vn", "-af", `loudnorm=I=${L.I}:TP=${L.TP}:LRA=${L.LRA}:print_format=json`, "-f", "null", "-"]).stderr;
   const meas = JSON.parse(first.slice(first.lastIndexOf("{"), first.lastIndexOf("}") + 1));
   const mastered = output.replace(/\.mp4$/, ".mastered.mp4");
-  const af = `loudnorm=I=${L.I}:TP=${L.TP}:LRA=${L.LRA}:measured_I=${meas.input_i}:measured_TP=${meas.input_tp}:measured_LRA=${meas.input_lra}:measured_thresh=${meas.input_thresh}:offset=${meas.target_offset}:linear=true`;
+  const af = `loudnorm=I=${L.I}:TP=${L.TP}:LRA=${L.LRA}:measured_I=${meas.input_i}:measured_TP=${meas.input_tp}:measured_LRA=${meas.input_lra}:measured_thresh=${meas.input_thresh}:offset=${meas.target_offset}:linear=true,alimiter=limit=${L.limit}:level=false:attack=5:release=50`;
   const r = run("ffmpeg", ["-v", "error", "-y", "-i", output, "-c:v", "copy", "-af", af, "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", mastered]);
   if (r.status !== 0) throw new Error(`ffmpeg master: ${r.stderr.trim()}`);
   fs.renameSync(mastered, output);

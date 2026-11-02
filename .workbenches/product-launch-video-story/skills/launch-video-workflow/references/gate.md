@@ -25,7 +25,7 @@ samples. `video/gate.json` mirrors the latest run.
 ## Draft and final
 
 - **Audio**: the render has an audio stream. It is mastered in place (two-pass
-  loudnorm to -14 LUFS, -1.5 dBTP target, video copied untouched), then
+  loudnorm to -14 LUFS, -2 dBTP target, then a -3 dBFS peak limiter, video copied untouched), then
   measured: integrated loudness within 1.5 LU of -14, true peak at most -1.0
   dBTP, no dropout of a second or more before the last two seconds, and the
   last 0.1 seconds below -18 dB (faded or ended, not chopped).
