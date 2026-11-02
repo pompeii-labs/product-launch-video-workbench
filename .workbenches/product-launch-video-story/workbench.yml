@@ -1,0 +1,45 @@
+spec: 1
+version: 0.3.0-trial.1
+
+name: product-launch-video-story
+description: "Variant B (story-first) of product-launch-video 0.3.0 for a solver trial: a story checkpoint (arc, copy, call to action, storyboard) before any motion work, then the music checkpoint."
+
+runner: opencode
+model:
+  id: anthropic/claude-opus-5-5
+  routes:
+    - provider: openrouter
+      model: anthropic/claude-opus-5.5
+runner_config: ./runner/opencode.json
+
+instructions: ./instructions.md
+skills:
+  - ./skills/launch-video-workflow
+  - ./skills/snapcn
+  - ./skills/remotion-launch-video
+  - ./skills/remotion-product-demo
+  - ./skills/remotion-best-practices
+
+tools:
+  - node
+  - ffmpeg
+  - ffprobe
+  - lvnew
+  - lvadd
+  - lvcapture
+  - lvcheck
+
+mcps: []
+env: {}
+
+requirements:
+  os: [linux]
+  cpu: 4
+  memory_gb: 8
+  disk_gb: 10
+
+runtimes:
+  docker:
+    image:
+      build: ../product-launch-video/Dockerfile
+      context: ../product-launch-video
