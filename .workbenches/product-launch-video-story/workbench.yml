@@ -1,8 +1,8 @@
 spec: 1
-version: 0.3.0-trial.1
+version: 0.3.1-trial.1
 
 name: product-launch-video-story
-description: "Variant B (story-first) of product-launch-video 0.3.0 for a solver trial: a story checkpoint (arc, copy, call to action, storyboard) before any motion work, then the music checkpoint."
+description: "Variant B (story-first) of product-launch-video 0.3.1 for a solver trial: a story checkpoint (arc, copy, call to action, storyboard) before any motion work, then the music checkpoint. Remotion requires a company licence for companies of four or more people."
 
 runner: opencode
 model:

@@ -257,6 +257,32 @@ function checkSource() {
   const root = fs.existsSync("src/Root.tsx") ? fs.readFileSync("src/Root.tsx", "utf8") : "";
   if (!root.includes("<LvProbe>")) fail("probe", "src/Root.tsx no longer wraps the video in <LvProbe>");
   if (mode !== "storyboard" && fs.readFileSync("src/LaunchVideo.tsx", "utf8").includes("STORYBOARD SKELETON")) fail("skeleton", "src/LaunchVideo.tsx is still the lvnew storyboard skeleton");
+  if (mode !== "storyboard") checkRemote();
+}
+
+// Every asset in the video is local. Vendored components ship remote default media
+// (snapcn showcase images, picsum) that render into the video when a prop is missed, and a
+// remote asset is a network call at render time. Font files and the SVG namespace are allowed.
+const REMOTE_OK = [/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, /^https:\/\/cdn\.jsdelivr\.net\/npm\/@fontsource\//, /^http:\/\/www\.w3\.org\//];
+function checkRemote() {
+  const files = [];
+  const walk = (d) => {
+    if (!fs.existsSync(d)) return;
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.(tsx?|jsx?|mjs|css)$/.test(e.name)) files.push(p);
+    }
+  };
+  for (const d of ["src", "components", "lib"]) walk(d);
+  for (const f of files) {
+    fs.readFileSync(f, "utf8").split("\n").forEach((line, i) => {
+      for (const m of line.matchAll(/["'`(](https?:\/\/[^"'`)\s]+)/g)) {
+        if (REMOTE_OK.some((r) => r.test(m[1]))) continue;
+        fail("remote", `${f}:${i + 1} loads ${m[1].slice(0, 80)}; put the asset under public/ and pass it as a prop, and delete the remote default from the installed source`);
+      }
+    });
+  }
 }
 
 await step("manifest", async () => {

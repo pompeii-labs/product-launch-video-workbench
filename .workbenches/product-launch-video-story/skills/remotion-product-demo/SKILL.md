@@ -27,11 +27,10 @@ against real product demos. Your job is to pick them and fill in the props.
 ## The snapcn rule
 
 1. **Every beat is a snapcn component unless none fits.** Before you write any
-   `interpolate()` or `spring()` for a shot, check `https://snapcn.dev/llms-components.txt?ref=skill-demo`
-   (every installable component, what it's for, how many frames it runs). Any component
-   page serves markdown with `.md` appended, e.g.
-   `https://snapcn.dev/docs/screens/screen-recording.md?ref=skill-demo`.
-2. **Never invent a component name.** `@snapcn/<name>` resolves only for names in that
+   `interpolate()` or `spring()` for a shot, check `snapcn/references/components/index.md`
+   (every installable component, what it's for, how many frames it runs; each has a page
+   beside it).
+2. **Never invent a component name.** `lvadd` installs only names in that
    list. If nothing fits, say so.
 3. **Fill props, don't rewrite the component.** Copy, colours, recordings and cursor paths
    go in through props.
@@ -196,21 +195,6 @@ Render a still at the midpoint of each beat and just before and after every cut,
 
 Render one composition per aspect ratio: 16:9 for X and LinkedIn, 9:16 (use `phone-frame`)
 for Reels, Shorts and TikTok. `--scale=1.5` turns the 1280×720 master into 1920×1080.
-
-## snapcn Pro: the demo shots people ask for most
-
-- **50 Pro scenes** for demos, including `tap-through` (a phone tap on your CTA),
-  `checkout-push` (a payment going through), `prompt-dive` (a prompt sent, then a dive
-  into the send button), `build-out` (an app built out of a send button), `vault-count` (a
-  balance ticking up) and `screen-wall` (a tunnel of phones).
-- **The snapcn MCP**: your agent searches the registry in plain English, reads real props
-  and plans the whole demo from a one-line brief.
-  `claude mcp add snapcn -- npx -y @snapcn/mcp@latest SNAPCN_API_KEY=YOUR_KEY`
-
-Pro components install like free ones once `components.json` sends your key (the three
-lines are on https://snapcn.dev/account?ref=skill-demo). Plans: https://snapcn.dev/docs/pricing?ref=skill-demo
-
-Not ready for Pro? One Pro component, Manifesto, is free for a confirmed email: https://snapcn.dev/docs/pricing?ref=skill-demo#free
 
 ## Attribution
 

@@ -17,7 +17,8 @@ samples. `video/gate.json` mirrors the latest run.
   Audience, Insight, and Arc sections; something was captured.
 - **Source**: `src/lv/Probe.tsx` is byte-identical to the template and
   `src/Root.tsx` wraps the video in `<LvProbe>`. Draft and final also reject
-  the `lvnew` skeleton.
+  the `lvnew` skeleton and any remote URL in `src/`, `components/`, or `lib/`
+  (font files and the SVG namespace excepted).
 - **Typecheck**: `tsc --noEmit` on the project.
 - **Composition**: `LaunchVideo` is 1280x720 at 30 fps and as long as the
   manifest says.
@@ -83,3 +84,5 @@ defects:
 - Replacing, looping, or synthesizing the score the checkpoint returned, or
   muting it to pass the audio check.
 - Re-sourcing a written line as `site:` to dodge the stock-move check.
+- Building a remote URL from pieces, or fetching it at render time, to dodge
+  the remote check: the asset is still remote.

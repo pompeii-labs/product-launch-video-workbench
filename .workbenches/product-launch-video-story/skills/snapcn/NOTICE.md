@@ -19,3 +19,13 @@ Local changes (product-launch-video 0.3.0), so the vendored text agrees with thi
   marked as banned.
 
 Re-vendoring overwrites these; reapply them. Re-vendor with `scripts/vendor-snapcn.sh [commit]`.
+
+Local changes (product-launch-video 0.3.1, after the round-1 boundary audit), so the agent never reaches the network
+for docs and never sees an upsell:
+
+- `snapcn/references/components/index.md`, `remotion-launch-video/SKILL.md`,
+  `remotion-product-demo/SKILL.md`: the snapcn.dev catalogue and docs URLs point at the vendored
+  `references/components/` pages instead.
+- `snapcn/SKILL.md`, `remotion-launch-video/SKILL.md`, `remotion-product-demo/SKILL.md`: the
+  "snapcn Pro" sections (Pro components, templates, the snapcn MCP, pricing links) are removed;
+  the live-list URL in `snapcn/SKILL.md` is dropped.
