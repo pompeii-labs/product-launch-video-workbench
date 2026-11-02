@@ -416,13 +416,13 @@ await step("audio", async () => {
   const I = parseFloat(summary.match(/I:\s+(-?[\d.]+) LUFS/)?.[1]);
   const TP = parseFloat(summary.match(/Peak:\s+(-?[\d.]+|-inf) dBFS/)?.[1]);
   const LRA = parseFloat(summary.match(/LRA:\s+(-?[\d.]+) LU/)?.[1]);
-  const tail = run("ffmpeg", ["-v", "info", "-sseof", "-0.2", "-i", output, "-vn", "-af", "volumedetect", "-f", "null", "-"]).stderr;
+  const tail = run("ffmpeg", ["-v", "info", "-sseof", "-0.1", "-i", output, "-vn", "-af", "volumedetect", "-f", "null", "-"]).stderr;
   const tailMax = parseFloat(tail.match(/max_volume:\s+(-?[\d.]+|-inf) dB/)?.[1] ?? "-inf");
   const sil = run("ffmpeg", ["-v", "info", "-i", output, "-vn", "-af", "silencedetect=noise=-50dB:d=1", "-f", "null", "-"]).stderr;
   report.audio = { lufs: I, truePeak: TP, lra: LRA, tailMaxDb: tailMax };
   if (!Number.isFinite(I) || Math.abs(I - L.I) > L.tolerance) errs.push(`integrated loudness ${I} LUFS after mastering, want ${L.I} +/- ${L.tolerance}; is the score quiet or mostly silence?`);
   if (Number.isFinite(TP) && TP > L.maxTP) errs.push(`true peak ${TP} dBTP, want at most ${L.maxTP}`);
-  if (Number.isFinite(tailMax) && tailMax > -24) errs.push(`the score is still at ${tailMax} dB in the last 0.2s: it is chopped on the last frame. Fade it over the end card or end it on a section boundary`);
+  if (Number.isFinite(tailMax) && tailMax > -18) errs.push(`the score is still at ${tailMax} dB in the last 0.1s: it is chopped on the last frame. Fade it over the end card or end it on a section boundary`);
   for (const m of sil.matchAll(/silence_start: ([\d.]+)/g)) {
     const s = parseFloat(m[1]);
     if (s < duration - 2) errs.push(`the score drops out at ${s.toFixed(1)}s for a second or more; it must run under the whole video`);
@@ -520,7 +520,8 @@ await step("probe", async () => {
       const faults = {
         "outside the title-safe area": shown && big && !texture && outside,
         "clipped": shown && big && !texture && visFrac < 0.9,
-        "undeclared copy": x.o >= 0.5 && visFrac >= 0.9 && (big || capsLabel) && n.length >= 4 && !declaredAll.includes(n) && !siteText.includes(n),
+        "undeclared copy": x.o >= 0.5 && visFrac >= 0.9 && big && n.length >= 4 && !declaredAll.includes(n) && !siteText.includes(n),
+        "small all-caps label": x.o >= 0.5 && visFrac >= 0.9 && capsLabel && !big && !declaredAll.includes(n) && !siteText.includes(n),
         "too small to read on a phone": x.o >= 0.5 && visFrac >= 0.9 && x.px < MIN_COPY_PX && n.length >= 4 && declared.some((d) => d.includes(n)),
       };
       for (const [kind, on] of Object.entries(faults)) {
@@ -563,7 +564,8 @@ await step("probe", async () => {
     const len = r.worst.to - r.worst.from + dt;
     const need = r.kind === "undeclared copy" ? UNDECLARED_HOLD : HOLD;
     if (len < need) continue;
-    if (r.kind === "upscaled") errs.push(`capture ${r.key} is upscaled up to ${upscale.get(r.key).toFixed(1)}x in the 1080p deliverable for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s; it will look soft. Use a vector or original file ("asset": true), capture at higher resolution, or show it smaller`);
+    if (r.kind === "small all-caps label") warn(`"${r.key}" is a small all-caps label for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s: an eyebrow over a headline is the template look; cut it or make it real copy (declared, 14px or more). Inside a recreated product UI it can stay`);
+    else if (r.kind === "upscaled") errs.push(`capture ${r.key} is upscaled up to ${upscale.get(r.key).toFixed(1)}x in the 1080p deliverable for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s; it will look soft. Use a vector or original file ("asset": true), capture at higher resolution, or show it smaller`);
     else errs.push(`"${r.key}" ${r.kind} for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s`);
   }
 

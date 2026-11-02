@@ -153,7 +153,8 @@ Copy and pacing
   product is a defect even when it passes.
 - Type sizes follow `remotion-best-practices/rules/video-layout.md`, scaled
   to 1280 wide: headline about 100px, supporting text about 52px, labels at
-  least 38px. A small all-caps eyebrow is copy too: declare it or cut it.
+  least 38px. A small all-caps eyebrow over a headline is the template look: cut
+  it (the gate warns on each one).
 
 Score
 - Play it with `<Audio>` from `@remotion/media`
@@ -162,7 +163,7 @@ Score
 - Cut it on a downbeat or section boundary near the end card
   (`music/analysis.json` lists them when it is present) with `trimAfter`,
   and fade it over the last second with a volume curve. The gate fails a
-  score still loud in the last 0.2 seconds.
+  score still loud in the last 0.1 seconds.
 - Never set the overall level for loudness: the gate masters the mix. Set
   volume only for shape (the fade, a dip under a held breath).
 

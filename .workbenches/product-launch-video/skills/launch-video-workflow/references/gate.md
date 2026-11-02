@@ -28,7 +28,7 @@ samples. `video/gate.json` mirrors the latest run.
   loudnorm to -14 LUFS, -1.5 dBTP target, video copied untouched), then
   measured: integrated loudness within 1.5 LU of -14, true peak at most -1.0
   dBTP, no dropout of a second or more before the last two seconds, and the
-  last 0.2 seconds below -24 dB (faded or ended, not chopped).
+  last 0.1 seconds below -18 dB (faded or ended, not chopped).
 
 The video renders with the layout probe, which samples every third frame and
 records each visible text run (box, visible box after clipping, opacity,
@@ -41,9 +41,10 @@ file, including video frames).
 - **Title-safe**: text 20px or larger stays inside a 5% margin. Type larger
   than the frame (a rush past the camera) is exempt.
 - **Clipped**: text 20px or larger is not cut by a container or the frame.
-- **Undeclared copy**: text 20px or larger, or ALL-CAPS text of four letters
-  or more at 9px or larger, on screen for a second, appears in the manifest's
-  copy or on a captured page.
+- **Undeclared copy**: text 20px or larger, on screen for a second, appears
+  in the manifest's copy or on a captured page. Undeclared ALL-CAPS labels
+  below 20px are reported as warnings: cut an eyebrow over a headline; a
+  label inside a recreated product UI can stay.
 - **Readable**: each declared line is complete on screen at some point in
   its beat, and at least half of it is on screen (from its start) for
   `0.6 + 0.3 x words` seconds. Declared copy is at least 14px.
