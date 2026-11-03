@@ -1,5 +1,5 @@
 spec: 1
-version: 0.3.2
+version: 0.3.3
 
 name: product-launch-video
 description: Make a 15 to 60 second product marketing video scored with music, as a launch, a feature announcement, a changelog, or a short explainer. Researches the product and its audience, writes the arc in the format's shape, animates the product's flow with snapcn's Remotion components, cuts to real footage where it proves the point, asks for the score from a music brief, masters the mix, and checks every frame. Returns the MP4 and an editable video/ project. Remotion requires a company licence for companies of four or more people.

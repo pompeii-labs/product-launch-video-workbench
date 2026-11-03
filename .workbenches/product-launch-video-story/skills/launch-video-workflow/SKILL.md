@@ -51,35 +51,35 @@ Do not write a beat until `story.md` names the one thing this video says that
 only this product could say, and its `## Retell` is one sentence with a
 person in it (`references/story.md` §3: default to people).
 
-### Concept checkpoint
+### Message checkpoint (a speed run)
 
-The story is the most expensive thing to fix after a render, and the place
-the model's default voice hides. In round 1 of this bench's trials the person
-threw out the bench's arc at a storyboard check and dictated a scene; that
-scene won. So offer scenes, early, before any footage or beat timing.
+The message and the arc are the most expensive things to fix after a render:
+one build is 20 to 30 minutes, so a wrong story costs the person an hour
+before they see it. Lock them first, in text, fast. Ask within a few minutes
+of starting: read the pages, then write nothing else first.
 
 1. After writing `story.md` sections Product, Audience, and Insight, write
-   `video/story-check.md` with three concepts. Each concept:
+   `video/story-check.md` with three options, each under 90 words:
    - a short title;
-   - who (named people, their role) and the medium the scene lives in;
-   - the moment, in two or three sentences, with what the people feel;
-   - its retell sentence;
-   - the beats in the format's shape, one line each, with the hook line and
-     the end card (the brief's call to action) exactly as they would read.
-   The three differ in the moment and the people, not only in device. At
-   most one may use an abstract device (mascot, metaphor), and it says why.
-   Nothing else in the file: no recommendation, no rationale beyond that.
+   - **Message**: what the viewer believes after watching, one sentence. It
+     is what the brief's call to action promises (`references/story.md` §2);
+   - **Retell**: the sentence a viewer would say to a friend, with a person
+     in it;
+   - **Arc**: one line per act in the format's shape, what happens, with
+     the end card (the brief's call to action) as it would read.
+   The three differ in the message or the moment, not only in device. None
+   retells a scene from the product's own site (§1). Nothing else in the
+   file: no recommendation, no rationale.
 2. Ask with the question tool, once:
-   - question: "Concept checkpoint. Read video/story-check.md. Pick a
-     concept, or write your own (any notes are welcome)."
-   - options: one per concept, labelled "1: <title>", "2: <title>",
-     "3: <title>".
+   - question: "Message checkpoint. Read video/story-check.md. Pick one, or
+     write your own message and arc (notes welcome)."
+   - options: "1: <title>", "2: <title>", "3: <title>".
    Note the time you asked.
-3. When the answer arrives, note the time. Build the picked concept; apply
-   any notes word for word (lines the person wrote go on screen as written,
-   sourced `brief`, and are appended verbatim to `brief.md`). A written
-   concept of their own replaces all three. Then finish `story.md` (Retell,
-   Proposition, Arc, and the rest) from it. There is no second story check.
+3. When the answer arrives, note the time. Lock the picked option; apply any
+   notes word for word (lines the person wrote go on screen as written,
+   sourced `brief`, and are appended verbatim to `brief.md`). Their own
+   message or arc replaces all three. Finish `story.md` (Retell,
+   Proposition, Arc, and the rest) from it.
 
 ## 4. Footage
 
@@ -98,19 +98,32 @@ matched to the tone) and budget it to their natural lengths. The signature
 beat gets the most screen time and the most craft. The last beat shows the
 call to action.
 
-## 6. Storyboard milestone
+## 6. Storyboard checkpoint
 
-`lvcheck --storyboard` renders one card per beat: the act, what it shows,
-its first line, its first shot. Open `video/storyboard.png` and read it as a
-viewer would. Score it against the Story and Close axes in
-`references/rubric.md`. If it reads like the tour anchor or could be about
-another product, rewrite the arc, not the animation. Rerun until the frames
-tell this product's story.
+The person thumbs through what you are going to build before any motion
+work. Also fast: rough frames, ten minutes at most.
 
+1. Replace the skeleton in `src/LaunchVideo.tsx` with one still frame per
+   beat, the frame a viewer would screenshot: the real layout, the beat's
+   line at its real size and place, the real shot placed and sized as it
+   will be, the brand colours and type. Plain JSX, no motion, no snapcn
+   installs yet; compose replaces it.
+2. `lvcheck --storyboard --frames`, then open `video/storyboard.png` and read
+   it as a viewer would, against the Story and Close axes in
+   `references/rubric.md`. Fix what you can see is wrong before asking.
+3. Ask with the question tool, once:
+   - question: "Storyboard checkpoint. Open video/storyboard.png: this is
+     what I'm going to build. Build it, or give notes."
+   - options: "Build it", "Notes".
+   Note the time you asked.
+4. When the answer arrives, note the time. Apply notes word for word to
+   `story.md`, the manifest, and the frames, and rerun
+   `lvcheck --storyboard --frames`. Ask again only if the notes changed the
+   message or the arc.
 
 ## 7. Music checkpoint
 
-The concept is picked and the timing is fixed, so the score can be briefed.
+The storyboard is approved and the timing is fixed, so the score can be briefed.
 
 1. Write `video/music/brief.md` from the template `lvnew` created: the
    length, every moment the music must hit with its time from the manifest
@@ -136,8 +149,8 @@ The concept is picked and the timing is fixed, so the score can be briefed.
 ## 8. Compose
 
 `lvadd` the components the manifest names. Read each installed source's props
-interface before using it. Replace the skeleton in `src/LaunchVideo.tsx` with
-one `<TransitionSeries>`, one sequence per beat (worked example:
+interface before using it. Replace the storyboard frames in `src/LaunchVideo.tsx`
+with one `<TransitionSeries>`, one sequence per beat (worked example:
 `remotion-launch-video` §4), and the score as one `<Audio>` beside it, cut on
 a downbeat near the end card and faded over the last second
 (`remotion-best-practices/rules/audio.md`). Lay out every scene by

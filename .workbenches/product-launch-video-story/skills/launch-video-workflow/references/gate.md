@@ -20,6 +20,8 @@ samples. `video/gate.json` mirrors the latest run.
   `src/Root.tsx` wraps the video in `<LvProbe>`. Draft and final also reject
   the `lvnew` skeleton and any remote URL in `src/`, `components/`, or `lib/`
   (font files and the SVG namespace excepted).
+  `--storyboard --frames` rejects the skeleton too: the sheet must show rough
+  frames, not cards.
 - **Typecheck**: `tsc --noEmit` on the project.
 - **Composition**: `LaunchVideo` is 1280x720 at 30 fps and as long as the
   manifest says.

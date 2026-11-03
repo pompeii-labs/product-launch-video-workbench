@@ -28,6 +28,12 @@ README too. Then answer, in `story.md`, with quotes and page ids:
 If you cannot answer "the old way" and "the turn" from what you read, the
 video will be a tour. Read more pages before writing a beat.
 
+**The site is material, not the story.** Take its facts, labels, numbers,
+and look. Never retell the site's own marketing scenes (its sample chat
+thread, its demo people, its hero animation): a video built from them is the
+home page animated, and the viewer has already seen it. Invent the moment;
+keep every label in it real.
+
 ## 2. Understand the audience
 
 - **Who watches**: their role, their tools, how technical they are. Infer it
@@ -44,7 +50,10 @@ dispute starts with someone screenshotting a spreadsheet" is an insight: it
 is specific, a little painful, and the product answers it.
 
 The **proposition** is the one idea the viewer leaves with. One. If you need
-"and", pick.
+"and", pick. It is what the brief's call to action promises: if the call
+says "Multiplayer AI is here", the story shows people and agents working
+together, not a different feature that happens to be true. Write the
+proposition before the arc; the arc exists to make the viewer believe it.
 
 ## 3. Choose the protagonist and the device
 
@@ -161,6 +170,11 @@ why, in `arc.mode` and `arc.modeWhy`.
 
 Never invent UI the product does not have. A recreation simplifies the real
 thing; it never adds to it.
+
+A captured page is proof, not a scene. Zooming or panning across website
+components is not a beat: it misses more often than it lands. Captured UI
+appears where the product is doing the beat's moment for the protagonist,
+large enough to read, and nowhere else.
 
 ## 6. Tone
 
