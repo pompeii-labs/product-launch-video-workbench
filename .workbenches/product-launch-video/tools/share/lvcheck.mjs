@@ -2,8 +2,8 @@
 //
 //   --storyboard  manifest, captures, typecheck, composition, and one still per beat tiled into
 //                 storyboard.png. Seconds, not minutes: the direction check before motion work.
-//   --storyboard --frames  the same, but the skeleton fails: each beat must be a rough still frame
-//                 (layout, line, shot) so a person can thumb through what will be built.
+//   --storyboard --frames  the same, but the skeleton fails and so does a video with no snapcn
+//                 component: each beat is its real scene, so a person thumbs through what will ship.
 //   (default)     draft: everything above, then a half-scale render with the layout probe, the
 //                 media checks, and a contact sheet plus one filmstrip per beat.
 //   --final       the draft checks on the deliverable: out/launch.mp4 at 1920x1080, copied with
@@ -272,6 +272,19 @@ function checkSource() {
   if (!root.includes("<LvProbe>")) fail("probe", "src/Root.tsx no longer wraps the video in <LvProbe>");
   if ((mode !== "storyboard" || args.includes("--frames")) && fs.readFileSync("src/LaunchVideo.tsx", "utf8").includes("STORYBOARD SKELETON")) fail("skeleton", "src/LaunchVideo.tsx is still the lvnew storyboard skeleton");
   if (mode !== "storyboard") checkRemote();
+  if (mode !== "storyboard" || args.includes("--frames")) checkComponents();
+}
+
+// The look comes from the vendored scenes. A video built only from hand-written JSX is the
+// default AI look (trials: the run that shipped its hand-built frames scored a point lower).
+function checkComponents() {
+  const files = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(tsx?|jsx?)$/.test(e.name)) files.push(p); } };
+  walk("src");
+  const used = new Set();
+  for (const f of files) for (const m of fs.readFileSync(f, "utf8").matchAll(/components\/snap-cn\/([a-z0-9-]+)/g)) used.add(m[1]);
+  if (!used.size) fail("components", "src/ imports no snapcn component; compose the scenes from components/snap-cn (lvadd), not hand-written JSX");
+  else pass("components", [...used].sort().join(", "));
 }
 
 // Every asset in the video is local. Vendored components ship remote default media

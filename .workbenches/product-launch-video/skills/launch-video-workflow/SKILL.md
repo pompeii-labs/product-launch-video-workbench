@@ -51,6 +51,36 @@ Do not write a beat until `story.md` names the one thing this video says that
 only this product could say, and its `## Retell` is one sentence with a
 person in it (`references/story.md` §3: default to people).
 
+### Message checkpoint (a speed run)
+
+The message and the arc are the most expensive things to fix after a render:
+one build is 20 to 30 minutes, so a wrong story costs the person an hour
+before they see it. Lock them first, in text, fast. Ask within a few minutes
+of starting: read the pages, then write nothing else first.
+
+1. After writing `story.md` sections Product, Audience, and Insight, write
+   `video/story-check.md` with three options, each under 90 words:
+   - a short title;
+   - **Message**: what the viewer believes after watching, one sentence. It
+     is what the brief's call to action promises (`references/story.md` §2);
+   - **Retell**: the sentence a viewer would say to a friend, with a person
+     in it;
+   - **Arc**: one line per act in the format's shape, what happens, with
+     the end card (the brief's call to action) as it would read.
+   The three differ in the message or the moment, not only in device. None
+   retells a scene from the product's own site (§1). Nothing else in the
+   file: no recommendation, no rationale.
+2. Ask with the question tool, once:
+   - question: "Message checkpoint. Read video/story-check.md. Pick one, or
+     write your own message and arc (notes welcome)."
+   - options: "1: <title>", "2: <title>", "3: <title>".
+   Note the time you asked.
+3. When the answer arrives, note the time. Lock the picked option; apply any
+   notes word for word (lines the person wrote go on screen as written,
+   sourced `brief`, and are appended verbatim to `brief.md`). Their own
+   message or arc replaces all three. Finish `story.md` (Retell,
+   Proposition, Arc, and the rest) from it.
+
 ## 4. Footage
 
 Now capture what the arc needs to show, and only that: brand art (logo,
@@ -68,18 +98,39 @@ matched to the tone) and budget it to their natural lengths. The signature
 beat gets the most screen time and the most craft. The last beat shows the
 call to action.
 
-## 6. Storyboard milestone
+## 6. Storyboard checkpoint
 
-`lvcheck --storyboard` renders one card per beat: the act, what it shows,
-its first line, its first shot. Open `video/storyboard.png` and read it as a
-viewer would. Score it against the Story and Close axes in
-`references/rubric.md`. If it reads like the tour anchor or could be about
-another product, rewrite the arc, not the animation. Rerun until the frames
-tell this product's story.
+The person thumbs through what you are going to build before the motion
+work. Fast: ten minutes at most. What the sheet shows is what ships.
+
+1. `lvadd` the snapcn components the beats need
+   (`snapcn/references/components/index.md`, the `vibe` tag matched to the
+   tone). Replace the skeleton in `src/LaunchVideo.tsx` with each beat's real
+   scene: its components with their real props (the lines, the shots, the
+   brand colours and type, the brand's characters), laid out as they will
+   ship, one sequence per beat. The sheet shows each beat's middle frame, so
+   the scene is at its key pose there. No transitions or score yet. Never
+   hand-build a rough frame to replace later: in this bench's trials, the
+   run that did shipped its rough frames, and its look scored a point below
+   the run that composed with components.
+2. `lvcheck --storyboard --frames` (it fails the skeleton and a storyboard
+   with no snapcn component), then open `video/storyboard.png` and read it as
+   a viewer would, against `references/rubric.md`. Fix what you can see is
+   wrong before asking.
+3. Ask with the question tool:
+   - question: "Storyboard checkpoint. Open video/storyboard.png: this is
+     what I'm going to build. Build it, or give notes."
+   - options: "Build it", "Notes".
+   Note the time you asked.
+4. When the answer arrives, note the time. Apply notes word for word to
+   `story.md`, the manifest, and the scenes, rerun
+   `lvcheck --storyboard --frames`, and ask again with the same question.
+   Repeat until the answer is "Build it": a round of notes costs minutes, a
+   full build twenty-five.
 
 ## 7. Music checkpoint
 
-The timing is now fixed, so the score can be briefed.
+The storyboard is approved and the timing is fixed, so the score can be briefed.
 
 1. Write `video/music/brief.md` from the template `lvnew` created: the
    length, every moment the music must hit with its time from the manifest
@@ -104,9 +155,10 @@ The timing is now fixed, so the score can be briefed.
 
 ## 8. Compose
 
-`lvadd` the components the manifest names. Read each installed source's props
-interface before using it. Replace the skeleton in `src/LaunchVideo.tsx` with
-one `<TransitionSeries>`, one sequence per beat (worked example:
+The storyboard's scenes are the composition: keep their components and
+layout, and add the motion. Read each installed source's props interface
+before changing a prop. Wrap the scenes in one `<TransitionSeries>`, one
+sequence per beat (worked example:
 `remotion-launch-video` §4), and the score as one `<Audio>` beside it, cut on
 a downbeat near the end card and faded over the last second
 (`remotion-best-practices/rules/audio.md`). Lay out every scene by
@@ -159,6 +211,6 @@ Lead with the result: where the video is, its length, its format, and whether
 the final gate passed (run id). Then the insight, the proposition, and the arc
 in one line each; the beats with what each shows and means; the mode and why;
 the score (the gate's loudness numbers, where it is cut and faded); the rubric
-scores with the frame that justifies each; the checkpoint times (asked,
-answered); any fact or asset that was missing and the choice you made; what
+scores with the frame that justifies each; each checkpoint (asked, answered,
+and whether the answer changed the plan); any fact or asset that was missing and the choice you made; what
 remains weak or unverified. Failures first when anything failed.

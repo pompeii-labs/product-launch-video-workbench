@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-# Wrapper: runs tools/share/lvcapture.mjs with the bench's tool root in LV_HOME.
-set -euo pipefail
-SELF="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
-export LV_HOME="${LV_HOME:-$(cd "$(dirname "$SELF")/.." && pwd)}"
-exec node "$LV_HOME/share/lvcapture.mjs" "$@"

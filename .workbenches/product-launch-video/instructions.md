@@ -44,7 +44,8 @@ checkpoint.
   mirrors it to `gate.json`.
   - `lvcheck --storyboard`: manifest, copy sources, captures, typecheck,
     composition, and one still per beat tiled into `storyboard.png`. About
-    10 seconds.
+    10 seconds. Add `--frames` at the storyboard checkpoint: it also fails
+    the skeleton and a video with no snapcn component.
   - `lvcheck`: the draft gate. Everything above, a half-scale render with the
     layout probe, the score mastered to -14 LUFS and checked, media checks,
     pixel contrast, `contact.png`, and one filmstrip per beat. About 30

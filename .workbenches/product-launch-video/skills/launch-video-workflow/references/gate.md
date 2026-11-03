@@ -20,8 +20,9 @@ samples. `video/gate.json` mirrors the latest run.
   `src/Root.tsx` wraps the video in `<LvProbe>`. Draft and final also reject
   the `lvnew` skeleton and any remote URL in `src/`, `components/`, or `lib/`
   (font files and the SVG namespace excepted).
-  `--storyboard --frames` rejects the skeleton too: the sheet must show rough
-  frames, not cards.
+  Draft, final, and `--storyboard --frames` also reject the skeleton and a
+  `src/` that imports no snapcn component: the scenes are composed from
+  `components/snap-cn/`.
 - **Typecheck**: `tsc --noEmit` on the project.
 - **Composition**: `LaunchVideo` is 1280x720 at 30 fps and as long as the
   manifest says.
@@ -87,5 +88,7 @@ defects:
 - Replacing, looping, or synthesizing the score the checkpoint returned, or
   muting it to pass the audio check.
 - Re-sourcing a written line as `site:` to dodge the stock-move check.
+- Importing a snapcn component that renders nothing, or only in a hidden
+  corner, to pass the components check.
 - Building a remote URL from pieces, or fetching it at render time, to dodge
   the remote check: the asset is still remote.
