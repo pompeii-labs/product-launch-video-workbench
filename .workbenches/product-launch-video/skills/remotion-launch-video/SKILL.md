@@ -27,10 +27,9 @@ pick the scenes and fill in the props, not to invent motion.
 
 1. **Every beat is a snapcn component unless none fits.** Before you write any
    `interpolate()` or `spring()` for a shot, check the catalogue:
-   `https://snapcn.dev/llms-components.txt?ref=skill-launch` lists every installable component with what it
-   is for and how many frames it runs. Any component page serves markdown when you append
-   `.md`, for example `https://snapcn.dev/docs/scenes/announce-title.md?ref=skill-launch`.
-2. **Never invent a component name.** `@snapcn/<name>` resolves only for names in that
+   `snapcn/references/components/index.md` lists every installable component with what it
+   is for and how many frames it runs; each has a page beside it.
+2. **Never invent a component name.** `lvadd` installs only names in that
    list. If nothing fits a beat, say so and carry the beat with typography
    (`@snapcn/text-reveal`) rather than guessing a name.
 3. **Fill props, don't rewrite the component.** Change the copy, colours and images through
@@ -73,7 +72,7 @@ Write the shot list first and map every beat to a snapcn component:
 | Name | 3–9s | `announce-title` | 170 | Eyebrow, product name, tagline, mark |
 | Product | 9–15s | `hero-launch`, `laptop-frame`, `phone-frame` | 170 / 240 / 240 | Real screens, on a device |
 | Proof | 15–17s | `count-grid`, `follower-rush` | 47 / 300 | One real number |
-| Close | 17–20s | `wordmark-cut`, `block-wordmark`, `logo-flicker`, `logo-assemble` | 66 / 150 / 100 / 108 | The name, and nothing else |
+| Close | 17–20s | `wordmark-cut`, `block-wordmark`, `logo-flicker`, `logo-assemble` | 66 / 150 / 100 / 108 | The brief's call to action, word for word |
 
 Rules that save re-renders:
 
@@ -96,11 +95,11 @@ Each lands at `components/snap-cn/<name>.tsx`, and its dependencies install with
 
 ### 4. Compose
 
-One `TransitionSeries`, one sequence per beat, short fades between them. This composition
+One `TransitionSeries`, one sequence per beat, short slides between them. This composition
 typechecks and renders as written, with four screenshots in `public/`:
 
 ```tsx
-import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { staticFile } from "remotion";
 import { AnnounceTitle } from "@/components/snap-cn/announce-title";
@@ -125,18 +124,18 @@ export const LaunchVideo: React.FC = () => (
         finally_="a prompt."
       />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 2. Name the product */}
     <TransitionSeries.Sequence durationInFrames={170}>
       <AnnounceTitle
-        eyebrow="Introducing"
+        eyebrow="Now for teams"
         title="Acme 2.0"
         tagline="Billing that reconciles itself."
         symbolPath="" // your mark as an SVG path in a 0 0 100 100 box; "" shows none
       />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 3. Show the product: two real shots (image, video, or a CSS gradient stand-in) */}
     <TransitionSeries.Sequence durationInFrames={170}>
@@ -146,13 +145,13 @@ export const LaunchVideo: React.FC = () => (
         image2="linear-gradient(135deg, #0f172a, #0ea5e9)"
       />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 4. Proof: one real number */}
     <TransitionSeries.Sequence durationInFrames={60}>
       <CountGrid from="5" to="500" noun="teams" cards={shots} />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={T} />
+    <TransitionSeries.Transition presentation={slide()} timing={T} />
 
     {/* 5. Close on the name */}
     <TransitionSeries.Sequence durationInFrames={66}>
@@ -220,7 +219,7 @@ rather than cropping afterwards.
 ## Hard-won lessons
 
 - **Never invent product UI labels.** Screenshot the real app and mirror its copy.
-- **One headline and one CTA on the end card.** Use the landing page's real tagline.
+- **One headline and one CTA on the end card.** The CTA is the brief's, word for word.
 - **Ground the hook in something viewers recognise without explanation.** If it needs a
   sentence to explain, the hook is too abstract.
 - **Before/after beats simultaneous.** Land the "before" for about a second, then cut to
@@ -230,25 +229,6 @@ rather than cropping afterwards.
 - **Your own additions stay restrained**: sentence case, no decorative letter-spacing, no
   glow or gradient text. snapcn scenes that carry a glow (`announce-title`) keep it; that is
   the effect, not decoration.
-
-## snapcn Pro: finished films, and an agent that knows every prop
-
-For launches that need more than the free scenes:
-
-- **50 Pro scenes** built for launches, including `version-drop` (a release number drop),
-  `library-flight`, `app-reveal`, `gallery-push` (a changelog wall), `screen-wall`,
-  `checkout-push`, `tally-rise`, `ticker-climb` and `thank-you-swarm`.
-- **Templates** (from 20 October 2026): finished launch films, feature walkthroughs and
-  changelog clips. Put in your copy and render: https://snapcn.dev/docs/templates?ref=skill-launch
-- **The snapcn MCP**: your agent searches the registry in plain English, reads the real
-  props of every component and turns a one-line brief into a beat-by-beat plan with a
-  `TransitionSeries` skeleton.
-  `claude mcp add snapcn -- npx -y @snapcn/mcp@latest SNAPCN_API_KEY=YOUR_KEY`
-
-Pro components install exactly like free ones once `components.json` sends your key (the
-three lines are on https://snapcn.dev/account?ref=skill-launch). Plans: https://snapcn.dev/docs/pricing?ref=skill-launch
-
-Not ready for Pro? One Pro component, Manifesto, is free for a confirmed email: https://snapcn.dev/docs/pricing?ref=skill-launch#free
 
 ## Attribution
 

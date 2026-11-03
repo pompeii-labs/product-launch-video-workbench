@@ -38,7 +38,9 @@ function add(name) {
     if (!installed.has(pkg)) die(`${name} needs npm package ${pkg}, which the bench image does not ship`);
   }
   for (const f of item.files ?? []) {
-    const target = path.join(project, f.target ?? f.path);
+    const rel = f.target ?? f.path;
+    if (path.isAbsolute(rel) || path.normalize(rel).split(path.sep).includes("..")) die(`${name}: refusing target outside the project: ${rel}`);
+    const target = path.join(project, rel);
     if (fs.existsSync(target) && fs.readFileSync(target, "utf8") !== f.content && !force) {
       console.log(`kept     ${path.relative(project, target)} (edited locally; --force overwrites)`);
       continue;

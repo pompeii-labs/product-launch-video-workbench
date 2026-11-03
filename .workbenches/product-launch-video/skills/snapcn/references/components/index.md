@@ -97,8 +97,7 @@ Overlays that sit on top of a scene.
 
 ## Newer components
 
-Shipped after the per-component files above were written. Props: read the installed source,
-or fetch `https://snapcn.dev/docs/<category>/<name>.md`.
+Shipped after the per-component files above were written. Props: read the installed source.
 
 | Component | Use for | Avoid for | Length | Vibe |
 |---|---|---|---|---|

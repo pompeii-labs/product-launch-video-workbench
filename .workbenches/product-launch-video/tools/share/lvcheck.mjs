@@ -2,6 +2,8 @@
 //
 //   --storyboard  manifest, captures, typecheck, composition, and one still per beat tiled into
 //                 storyboard.png. Seconds, not minutes: the direction check before motion work.
+//   --storyboard --frames  the same, but the skeleton fails and so does a video with no snapcn
+//                 component: each beat is its real scene, so a person thumbs through what will ship.
 //   (default)     draft: everything above, then a half-scale render with the layout probe, the
 //                 media checks, and a contact sheet plus one filmstrip per beat.
 //   --final       the draft checks on the deliverable: out/launch.mp4 at 1920x1080, copied with
@@ -29,8 +31,35 @@ const OUT_SCALE = 1920 / W; // the final deliverable is 1080p: judge sharpness a
 const MAX_UPSCALE = { still: 1.25, recording: 2 };
 const UPSCALE_MIN_AREA = 0.005; // ignore specks
 const MIN_CONTRAST = 3; // WCAG ratio for large text, measured on rendered pixels
-// The arc, in order. A beat's act may repeat (two tension beats) but never go backwards.
-const ACTS = ["hook", "tension", "turn", "payoff", "proof", "call"];
+// The shape of each format, in order. A beat's act may repeat (two tension beats, three changelog
+// items) but never goes backwards. `need` lists acts that must appear (an act listed twice must
+// appear twice); `arrive` is the act that carries the product's moment and the share of the video
+// it must start by; `signature` lists the acts the signature beat may belong to.
+const FORMATS = {
+  launch: { acts: ["hook", "tension", "turn", "payoff", "proof", "call"], need: ["tension", "turn"], arrive: ["turn", 0.5], signature: ["turn", "payoff"] },
+  feature: { acts: ["hook", "context", "reveal", "demo", "payoff", "call"], need: ["reveal", "demo"], arrive: ["reveal", 0.4], signature: ["reveal", "demo", "payoff"] },
+  changelog: { acts: ["hook", "item", "call"], need: ["item", "item"], arrive: ["item", 0.25], signature: ["item"] },
+  explainer: { acts: ["hook", "question", "how", "payoff", "call"], need: ["question", "how"], arrive: ["how", 0.5], signature: ["how", "payoff"] },
+};
+// The model's default copywriting, named so a written line cannot ship it. Checked on "written"
+// copy only: the product's own words and the brief are theirs to choose.
+const SCENT = [
+  [/[\u2014\u2013]/, "an em or en dash"],
+  [/^\s*introducing\b/i, `the "Introducing" kicker`],
+  [/^\s*meet\s+\S+/i, `a "Meet X" opener`],
+  [/^\s*what if\b/i, `a rhetorical "What if"`],
+  [/\bnot (just|only|merely)\b[^.]*\b(but|it'?s|it is)\b/i, `"not just X, but Y"`],
+  [/\b(it'?s|this is|that'?s) not\b[^.]*[.,;]\s*(it'?s|this is|that'?s)\b/i, `"it's not X, it's Y"`],
+  [/\bnot for (a )?lack of\b/i, `"not for lack of X"`],
+  [/\bsame \w+, same \w+/i, `"same X, same Y"`],
+  [/\b(are|is) not\.?\s*$/i, `a two-beat antithesis ("X are not.")`],
+  [/\b(seamless(ly)?|effortless(ly)?|supercharg\w*|unleash\w*|elevat\w*|revolutioni[sz]\w*|game[- ]?chang\w*|next[- ]level|reimagin\w*|empower\w*|the power of|the future of)\b/i, "a stock marketing word"],
+];
+// Loudness of the delivered mix: the web and social norm, measured on the rendered file.
+const LOUDNESS = { I: -14, TP: -2, LRA: 11, tolerance: 1.5, maxTP: -1.0, limit: 0.708 }; // limit: -3 dBFS sample peak, so the AAC encode stays under maxTP
+const MUSIC_BRIEF_SECTIONS = ["## Length", "## Moments", "## Style", "## Avoid"];
+// Round 1: every score briefed with these came back as stock/hold music.
+const MOOD_WORDS = /\b(warm|handmade|hand-made|friendly|uplifting|inspiring|inspirational|corporate|cozy|cosy|soothing|gentle)\b/i;
 const MODES = ["animated", "captured", "hybrid"];
 const ARC_FIELDS = ["audience", "insight", "proposition", "protagonist", "device", "tone", "mode", "modeWhy", "signature"];
 const STORY_SECTIONS = ["## Product", "## Audience", "## Insight", "## Arc"];
@@ -124,8 +153,28 @@ const readSeconds = (s) => 0.6 + 0.3 * words(s);
 function checkManifest() {
   const m = manifest;
   const errs = [];
-  if (m.version !== 2) errs.push("version must be 2");
+  if (m.version !== 3) errs.push("version must be 3");
   if (typeof m.product !== "string" || !m.product.trim()) errs.push(`"product" is empty`);
+  const fmt = FORMATS[m.format];
+  if (!fmt) errs.push(`"format" must be one of ${Object.keys(FORMATS).join(", ")}`);
+  const ACTS = fmt?.acts ?? [];
+  const cta = m.cta?.text ?? "";
+  if (!cta.trim()) errs.push(`cta.text is empty; the call to action comes from the brief, word for word`);
+  else if (!norm(brief).includes(norm(cta)) && !capIndex.shots.some((s) => norm(shotText(s.id) ?? "").includes(norm(cta))))
+    errs.push(`cta.text "${cta}" is not in brief.md or on a captured page; the call to action is the brief's (else the product's own), never written`);
+  const track = m.music?.track ?? "";
+  if (!/^music\/[A-Za-z0-9._-]+\.(mp3|wav|m4a|aac)$/.test(track)) errs.push(`music.track must name the score under public/, e.g. "music/track.mp3"`);
+  else if (mode !== "storyboard") {
+    if (!fs.existsSync(path.join("public", track))) errs.push(`public/${track} does not exist; the score arrives through the music checkpoint before composing`);
+    const mb = fs.existsSync("music/brief.md") ? fs.readFileSync("music/brief.md", "utf8") : "";
+    if (!mb.trim()) errs.push("music/brief.md is missing; write the music brief before asking for the score");
+    else {
+      for (const h of MUSIC_BRIEF_SECTIONS) if (!mb.includes(h)) errs.push(`music/brief.md lacks "${h}"`);
+      const style = (mb.split("## Style")[1] ?? "").split(/\n## /)[0];
+      const mood = style.match(MOOD_WORDS);
+      if (mood) errs.push(`music/brief.md Style says "${mood[0]}": mood words came back as hold music; name the energy and attitude ("funky, playful, confident") and the instruments that carry it`);
+    }
+  }
   const arc = m.arc ?? {};
   for (const k of ARC_FIELDS) if (typeof arc[k] !== "string" || !arc[k].trim()) errs.push(`arc.${k} is empty`);
   if (arc.mode && !MODES.includes(arc.mode)) errs.push(`arc.mode must be one of ${MODES.join(", ")}`);
@@ -139,7 +188,7 @@ function checkManifest() {
     const at = `beat ${b.id ?? i}`;
     if (!/^[a-z0-9-]+$/.test(b.id ?? "") || ids.has(b.id)) errs.push(`${at}: id must be a unique lowercase slug`);
     ids.add(b.id);
-    if (!ACTS.includes(b.act)) errs.push(`${at}: act must be one of ${ACTS.join(", ")}`);
+    if (fmt && !ACTS.includes(b.act)) errs.push(`${at}: act must be one of ${ACTS.join(", ")} for a ${m.format} video`);
     else if (i > 0 && ACTS.indexOf(b.act) < ACTS.indexOf(beats[i - 1].act)) errs.push(`${at}: act "${b.act}" comes after "${beats[i - 1].act}"; the arc runs ${ACTS.join(" > ")}`);
     for (const k of ["shows", "means"]) if (typeof b[k] !== "string" || !b[k].trim()) errs.push(`${at}: "${k}" is empty (what the viewer sees, and what they understand after it)`);
     if (typeof b.start !== "number" || typeof b.end !== "number" || b.end <= b.start) errs.push(`${at}: needs numeric start < end`);
@@ -158,6 +207,7 @@ function checkManifest() {
       const src = c.source ?? "";
       if (src === "written") {
         if (/\d/.test(c.text)) errs.push(`${at}: "${c.text}" has a number but is sourced "written"; numbers come from the site or the brief`);
+        for (const [re, what] of SCENT) if (re.test(c.text)) errs.push(`${at}: "${c.text}" uses ${what}; say the specific thing this product does instead`);
       } else if (src === "brief") {
         if (!norm(brief).includes(norm(c.text))) errs.push(`${at}: "${c.text}" is sourced "brief" but brief.md does not contain it`);
       } else if (src.startsWith("site:")) {
@@ -168,15 +218,22 @@ function checkManifest() {
     }
     if (b.end > b.start && budget > b.end - b.start + 0.5) errs.push(`${at}: its copy needs ${budget.toFixed(1)}s to read in a ${(b.end - b.start).toFixed(1)}s beat; cut words or lengthen the beat`);
   });
-  if (beats.length) {
+  if (beats.length && fmt) {
     if (beats[0].act !== "hook") errs.push("the first beat must be the hook");
     if (beats.at(-1).act !== "call") errs.push("the last beat must be the call");
-    for (const act of ["tension", "turn"]) if (!beats.some((b) => b.act === act)) errs.push(`no ${act} beat; a story needs the problem felt and the product turning it`);
-    const turn = beats.find((b) => b.act === "turn");
-    if (turn && turn.start > dur * 0.5) errs.push(`the turn starts at ${turn.start}s, past half the video; the product must arrive by ${(dur * 0.5).toFixed(1)}s`);
+    for (const act of new Set(fmt.need)) {
+      const want = fmt.need.filter((a) => a === act).length;
+      const have = beats.filter((b) => b.act === act).length;
+      if (have < want) errs.push(`a ${m.format} video needs ${want > 1 ? `${want} ` : "a "}${act} beat${want > 1 ? "s" : ""}, it has ${have} (shape: ${ACTS.join(" > ")})`);
+    }
+    const [arriveAct, arriveBy] = fmt.arrive;
+    const first = beats.find((b) => b.act === arriveAct);
+    if (first && first.start > dur * arriveBy) errs.push(`the ${arriveAct} starts at ${first.start}s; in a ${m.format} video the product's moment must arrive by ${(dur * arriveBy).toFixed(1)}s`);
     const sig = beats.find((b) => b.id === arc.signature);
     if (arc.signature && !sig) errs.push(`arc.signature "${arc.signature}" is not a beat id`);
-    else if (sig && !["turn", "payoff"].includes(sig.act)) errs.push(`the signature beat "${sig.id}" must be the turn or the payoff`);
+    else if (sig && !fmt.signature.includes(sig.act)) errs.push(`the signature beat "${sig.id}" must be a ${fmt.signature.join(" or ")} beat in a ${m.format} video`);
+    const call = beats.at(-1);
+    if (cta.trim() && !norm((call.copy ?? []).map((c) => c.text).join(" ")).includes(norm(cta))) errs.push(`the call beat does not show the brief's call to action "${cta}" (it may span several copy lines, sourced "brief")`);
     if (arc.mode && arc.mode !== "animated" && !beats.some((b) => b.ui)) errs.push(`mode "${arc.mode}" needs at least one beat with ui: true showing captured footage`);
     if (Math.abs(beats.at(-1).end - dur) > 0.05) errs.push(`beats end at ${beats.at(-1).end}s but durationSeconds is ${dur}`);
   }
@@ -197,10 +254,15 @@ function checkManifest() {
       if (body === null) errs.push(`story.md lacks "${h}"`);
       else if (words(body) < 25 || templateStory.includes(body.trim())) errs.push(`story.md "${h}" is not written yet (25 words at least)`);
     }
+  if (story.trim() && story !== templateStory) {
+    const retell = section("## Retell");
+    if (retell === null) errs.push(`story.md lacks "## Retell": the one sentence a viewer would tell a friend, with the person in it`);
+    else if (templateStory.includes(retell.trim()) || words(retell) < 8 || words(retell) > 45) errs.push(`story.md "## Retell" must be one plain sentence of 8 to 45 words`);
+  }
   if (capIndex.shots.length === 0) errs.push("nothing captured or imported (capture/index.json); research the product's pages first");
   for (const s of capIndex.shots.filter((s) => !s.ok)) warn(`capture "${s.id}" failed: ${s.error}`);
   if (errs.length) errs.forEach((e) => fail("manifest", e));
-  else pass("manifest", `${beats.length} beats, ${dur}s, ${arc.mode}, ${shots.size} shots`);
+  else pass("manifest", `${m.format}, ${beats.length} beats, ${dur}s, ${arc.mode}, ${shots.size} shots`);
 }
 
 function checkSource() {
@@ -208,7 +270,46 @@ function checkSource() {
   if (!fs.existsSync(probe) || sha256(probe) !== sha256(path.join(TEMPLATE, "src", "lv", "Probe.tsx"))) fail("probe", "src/lv/Probe.tsx is missing or edited; restore it from the template");
   const root = fs.existsSync("src/Root.tsx") ? fs.readFileSync("src/Root.tsx", "utf8") : "";
   if (!root.includes("<LvProbe>")) fail("probe", "src/Root.tsx no longer wraps the video in <LvProbe>");
-  if (mode !== "storyboard" && fs.readFileSync("src/LaunchVideo.tsx", "utf8").includes("STORYBOARD SKELETON")) fail("skeleton", "src/LaunchVideo.tsx is still the lvnew storyboard skeleton");
+  if ((mode !== "storyboard" || args.includes("--frames")) && fs.readFileSync("src/LaunchVideo.tsx", "utf8").includes("STORYBOARD SKELETON")) fail("skeleton", "src/LaunchVideo.tsx is still the lvnew storyboard skeleton");
+  if (mode !== "storyboard") checkRemote();
+  if (mode !== "storyboard" || args.includes("--frames")) checkComponents();
+}
+
+// The look comes from the vendored scenes. A video built only from hand-written JSX is the
+// default AI look (trials: the run that shipped its hand-built frames scored a point lower).
+function checkComponents() {
+  const files = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(tsx?|jsx?)$/.test(e.name)) files.push(p); } };
+  walk("src");
+  const used = new Set();
+  for (const f of files) for (const m of fs.readFileSync(f, "utf8").matchAll(/components\/snap-cn\/([a-z0-9-]+)/g)) used.add(m[1]);
+  if (!used.size) fail("components", "src/ imports no snapcn component; compose the scenes from components/snap-cn (lvadd), not hand-written JSX");
+  else pass("components", [...used].sort().join(", "));
+}
+
+// Every asset in the video is local. Vendored components ship remote default media
+// (snapcn showcase images, picsum) that render into the video when a prop is missed, and a
+// remote asset is a network call at render time. Font files and the SVG namespace are allowed.
+const REMOTE_OK = [/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, /^https:\/\/cdn\.jsdelivr\.net\/npm\/@fontsource\//, /^http:\/\/www\.w3\.org\//];
+function checkRemote() {
+  const files = [];
+  const walk = (d) => {
+    if (!fs.existsSync(d)) return;
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.(tsx?|jsx?|mjs|css)$/.test(e.name)) files.push(p);
+    }
+  };
+  for (const d of ["src", "components", "lib"]) walk(d);
+  for (const f of files) {
+    fs.readFileSync(f, "utf8").split("\n").forEach((line, i) => {
+      for (const m of line.matchAll(/["'`(](https?:\/\/[^"'`)\s]+)/g)) {
+        if (REMOTE_OK.some((r) => r.test(m[1]))) continue;
+        fail("remote", `${f}:${i + 1} loads ${m[1].slice(0, 80)}; put the asset under public/ and pass it as a prop, and delete the remote default from the installed source`);
+      }
+    });
+  }
 }
 
 await step("manifest", async () => {
@@ -341,9 +442,51 @@ await step("render", async () => {
   });
 });
 
-// ---------- 5. media checks ----------
+// ---------- 5. master the score, then check it ----------
 
+// The mix is mastered here, the same way on every run: two-pass loudnorm to the web norm and a
+// peak limiter (loudnorm alone lets the AAC encode overshoot the true-peak ceiling), video
+// copied untouched. Then the delivered file is measured: loudness, true peak, a music dropout, and
+// whether the score fades or ends with the cut instead of being chopped on the last frame.
 const duration = composition.durationInFrames / FPS;
+await step("audio", async () => {
+  const errs = [];
+  const streams = JSON.parse(run("ffprobe", ["-v", "error", "-print_format", "json", "-show_streams", output]).stdout).streams;
+  if (!streams.some((s) => s.codec_type === "audio")) {
+    fail("audio", `the render has no audio; play the score with <Audio src={staticFile("${manifest.music?.track}")} /> in the composition`);
+    return;
+  }
+  const L = LOUDNESS;
+  const first = run("ffmpeg", ["-v", "info", "-i", output, "-vn", "-af", `loudnorm=I=${L.I}:TP=${L.TP}:LRA=${L.LRA}:print_format=json`, "-f", "null", "-"]).stderr;
+  const meas = JSON.parse(first.slice(first.lastIndexOf("{"), first.lastIndexOf("}") + 1));
+  const mastered = output.replace(/\.mp4$/, ".mastered.mp4");
+  const af = `loudnorm=I=${L.I}:TP=${L.TP}:LRA=${L.LRA}:measured_I=${meas.input_i}:measured_TP=${meas.input_tp}:measured_LRA=${meas.input_lra}:measured_thresh=${meas.input_thresh}:offset=${meas.target_offset}:linear=true,alimiter=limit=${L.limit}:level=false:attack=5:release=50`;
+  const r = run("ffmpeg", ["-v", "error", "-y", "-i", output, "-c:v", "copy", "-af", af, "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", mastered]);
+  if (r.status !== 0) throw new Error(`ffmpeg master: ${r.stderr.trim()}`);
+  fs.renameSync(mastered, output);
+
+  const ebu = run("ffmpeg", ["-v", "info", "-nostats", "-i", output, "-vn", "-af", "ebur128=peak=true", "-f", "null", "-"]).stderr;
+  const summary = ebu.slice(ebu.lastIndexOf("Summary:"));
+  const I = parseFloat(summary.match(/I:\s+(-?[\d.]+) LUFS/)?.[1]);
+  const TP = parseFloat(summary.match(/Peak:\s+(-?[\d.]+|-inf) dBFS/)?.[1]);
+  const LRA = parseFloat(summary.match(/LRA:\s+(-?[\d.]+) LU/)?.[1]);
+  const tail = run("ffmpeg", ["-v", "info", "-sseof", "-0.1", "-i", output, "-vn", "-af", "volumedetect", "-f", "null", "-"]).stderr;
+  const tailMax = parseFloat(tail.match(/max_volume:\s+(-?[\d.]+|-inf) dB/)?.[1] ?? "-inf");
+  const sil = run("ffmpeg", ["-v", "info", "-i", output, "-vn", "-af", "silencedetect=noise=-50dB:d=1", "-f", "null", "-"]).stderr;
+  report.audio = { lufs: I, truePeak: TP, lra: LRA, tailMaxDb: tailMax };
+  if (!Number.isFinite(I) || Math.abs(I - L.I) > L.tolerance) errs.push(`integrated loudness ${I} LUFS after mastering, want ${L.I} +/- ${L.tolerance}; is the score quiet or mostly silence?`);
+  if (Number.isFinite(TP) && TP > L.maxTP) errs.push(`true peak ${TP} dBTP, want at most ${L.maxTP}`);
+  if (Number.isFinite(tailMax) && tailMax > -18) errs.push(`the score is still at ${tailMax} dB in the last 0.1s: it is chopped on the last frame. Fade it over the end card or end it on a section boundary`);
+  for (const m of sil.matchAll(/silence_start: ([\d.]+)/g)) {
+    const s = parseFloat(m[1]);
+    if (s < duration - 2) errs.push(`the score drops out at ${s.toFixed(1)}s for a second or more; it must run under the whole video`);
+  }
+  if (errs.length) errs.forEach((e) => fail("audio", e));
+  else pass("audio", `${I} LUFS, ${TP} dBTP, LRA ${LRA}, tail ${tailMax} dB`);
+});
+
+// ---------- 6. media checks ----------
+
 const copyMoments = []; // where each declared line is first complete, for the contrast check
 await step("media", async () => {
   const p = JSON.parse(run("ffprobe", ["-v", "error", "-print_format", "json", "-show_streams", "-show_format", output]).stdout);
@@ -369,7 +512,7 @@ await step("media", async () => {
   else pass("media", `${v.width}x${v.height} h264 ${d.toFixed(2)}s`);
 });
 
-// ---------- 6. layout probe checks ----------
+// ---------- 7. layout probe checks ----------
 
 await step("probe", async () => {
   const byFrame = new Map();
@@ -421,6 +564,9 @@ await step("probe", async () => {
       const visFrac = area(x.b) > 0 ? area(x.v) / area(x.b) : 0;
       const shown = x.o >= 0.5 && visFrac > 0;
       const big = x.px >= HEADLINE_PX;
+      // A small all-caps eyebrow is still copy the viewer reads: declare it (and so size it) or cut it.
+      const letters = x.s.replace(/[^A-Za-z]/g, "");
+      const capsLabel = letters.length >= 4 && letters === letters.toUpperCase() && x.px >= 9;
       // Type larger than the frame is texture in a camera move (announce-title's rush), not a layout fault.
       const texture = x.b.w > W * 0.9 || x.b.h > H * 0.5;
       const outside = x.b.x < SAFE.x0 - 2 || x.b.y < SAFE.y0 - 2 || x.b.x + x.b.w > SAFE.x1 + 2 || x.b.y + x.b.h > SAFE.y1 + 2;
@@ -429,6 +575,7 @@ await step("probe", async () => {
         "outside the title-safe area": shown && big && !texture && outside,
         "clipped": shown && big && !texture && visFrac < 0.9,
         "undeclared copy": x.o >= 0.5 && visFrac >= 0.9 && big && n.length >= 4 && !declaredAll.includes(n) && !siteText.includes(n),
+        "small all-caps label": x.o >= 0.5 && visFrac >= 0.9 && capsLabel && !big && !declaredAll.includes(n) && !siteText.includes(n),
         "too small to read on a phone": x.o >= 0.5 && visFrac >= 0.9 && x.px < MIN_COPY_PX && n.length >= 4 && declared.some((d) => d.includes(n)),
       };
       for (const [kind, on] of Object.entries(faults)) {
@@ -471,7 +618,8 @@ await step("probe", async () => {
     const len = r.worst.to - r.worst.from + dt;
     const need = r.kind === "undeclared copy" ? UNDECLARED_HOLD : HOLD;
     if (len < need) continue;
-    if (r.kind === "upscaled") errs.push(`capture ${r.key} is upscaled up to ${upscale.get(r.key).toFixed(1)}x in the 1080p deliverable for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s; it will look soft. Use a vector or original file ("asset": true), capture at higher resolution, or show it smaller`);
+    if (r.kind === "small all-caps label") warn(`"${r.key}" is a small all-caps label for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s: an eyebrow over a headline is the template look; cut it or make it real copy (declared, 14px or more). Inside a recreated product UI it can stay`);
+    else if (r.kind === "upscaled") errs.push(`capture ${r.key} is upscaled up to ${upscale.get(r.key).toFixed(1)}x in the 1080p deliverable for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s; it will look soft. Use a vector or original file ("asset": true), capture at higher resolution, or show it smaller`);
     else errs.push(`"${r.key}" ${r.kind} for ${len.toFixed(1)}s at ${r.worst.from.toFixed(1)}s`);
   }
 
@@ -529,7 +677,7 @@ await step("probe", async () => {
   else pass("probe", `${samples.length} samples, captured footage on screen ${Math.round(share * 100)}%`);
 });
 
-// ---------- 7. contrast on rendered pixels ----------
+// ---------- 8. contrast on rendered pixels ----------
 
 // Relative luminance from 8-bit gray, then the WCAG ratio between the light and dark ends of
 // the text box (5th and 95th percentile): text and whatever it actually sits on.
@@ -561,7 +709,7 @@ await step("contrast", async () => {
   else pass("contrast", `${copyMoments.length} lines`);
 });
 
-// ---------- 8. evidence sheets ----------
+// ---------- 9. evidence sheets ----------
 
 await step("sheets", async () => {
   const grab = (t, dest) => {
@@ -599,7 +747,7 @@ await step("sheets", async () => {
   for (const f of fs.readdirSync(path.join(runDir, "frames"))) fs.rmSync(path.join(runDir, "frames", f));
 });
 
-// ---------- 9. deliver ----------
+// ---------- 10. deliver ----------
 
 if (mode === "final" && report.failures.length === 0) {
   const outbox = process.env.WORKBENCH_OUTPUT_DIR;

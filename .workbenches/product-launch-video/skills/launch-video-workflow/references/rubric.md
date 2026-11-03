@@ -15,6 +15,21 @@ with no automatic failure. The gate cannot see most of this; you can.
 - **1**: a tour: screens and captions in sequence, nothing at stake, no turn
   on screen. Compare the tour anchor in `story.md`.
 
+Score Story at 1 also when it is the formula: the arc would fit another
+product with the names swapped, or written lines use any move in `story.md`
+§7.
+
+## Close
+
+- **3**: the end card shows the brief's call to action word for word, large,
+  alone with the URL, held long enough to read twice; the viewer can tell why
+  this ask follows from what they just saw.
+- **2**: the call is right but competes with a tagline, a logo, or a second
+  line, or is cut short.
+- **1**: the call is missing, rewritten, generic ("Learn more"), or
+  contradicts the brand (a playful product closing on a legal tone, or the
+  reverse).
+
 ## The product moment
 
 - **3**: the signature beat is the best thing in the video: the product's
@@ -46,6 +61,19 @@ with no automatic failure. The gate cannot see most of this; you can.
 - **1**: dead air, a shot cut mid-move, fades stacking two beats, or
   everything easing the same way.
 
+## Score
+
+Judged from the gate's audio numbers and the music brief, since you cannot
+listen: the brief's moments line up with the beats the manifest times, the
+cut lands on a downbeat near the end card, the fade sits under the call.
+
+- **3**: every moment in `music/brief.md` matches a beat boundary in the
+  manifest within half a second; the score is cut on a downbeat or section
+  boundary from `music/analysis.json` and fades over the end card; the gate's
+  audio check passes.
+- **2**: the cut or the fade is placed by time, not by the music's structure.
+- **1**: the brief's moments ignore the beats, or the audio check fails.
+
 ## Automatic failures
 
 Any of these is a defect even when the gate passes:
@@ -63,6 +91,10 @@ Any of these is a defect even when the gate passes:
 - Brand art that is soft, grainy, or off-colour, or sits on a rectangle of
   another background: a logo or mascot cropped from a screenshot instead of
   taken as an asset.
+- An end card whose call to action is not the brief's, word for word.
+- A frame whose type is web-sized: a headline under about 80px or body text
+  under about 40px at 1280 wide, outside a recreated UI.
+- Six beats on the same flat background with text in the same corner.
 
 ## The model's default taste: never ship these
 
@@ -81,3 +113,5 @@ of these, change it:
 - The website tour: home page, then features page, then pricing, each with a
   caption.
 - "Introducing" followed by nothing a viewer could not guess.
+- Tiny letter-spaced ALL-CAPS eyebrows over every headline.
+- The same transition, the same direction, on every cut.
