@@ -52,6 +52,24 @@ The **protagonist** is who we follow: the viewer ("you"), a specific user at
 work, or the product's own agent or object made into a character. A video
 with a protagonist has stakes; a video without one is a slideshow.
 
+**Default to people.** Named people (first names), in a moment the audience
+has lived, told through the medium they live it in: a chat, a terminal, a
+doc, a call. Show what they do and what they feel, in order, with the
+product changing one thing in that moment. Abstract devices (a mascot on a
+desk, floating cards, a metaphor) need a reason this person-first version
+would be worse; write that reason in `story.md`. Round 1 of this bench's
+trials: the two arms that told the story through a mascot or a sequence of
+ideas were judged "made no sense" or "far below the bar"; the winner was a
+scene the person wrote at the checkpoint: two teammates in a chat, one
+borrowing the other's tuned bench (anchor below).
+
+**The retell test.** Write `## Retell` in `story.md`: the one sentence a
+viewer would say to a friend after watching, in plain words, with the person
+in it ("Dana used the bench Lee spent a week on, and it brought everything
+it needed"). If the sentence lists features, names no one, or needs the
+product's vocabulary to make sense, the story is not there yet: rewrite the
+arc, not the sentence.
+
 The **device** is how the story moves. Pick the one that fits the turn:
 
 | Device | Shape | Fits when |
@@ -218,3 +236,26 @@ Mode: hybrid. Protagonist: an engineer shipping at 5pm.
 
 Same facts, same site. The difference is a protagonist, a before the viewer
 feels, and a turn they watch happen.
+
+## Anchor: a scene (feature format, written by a person at the story checkpoint)
+
+The product: Workbenches for teams (a private registry so a workflow one
+person tuned becomes something the team can run, with secrets shared).
+The bench's own arc opened on a mascot and an abstract problem; the person
+replaced it with this, and it was the only video of four judged good enough
+to post.
+
+| Act | shows | means |
+|---|---|---|
+| hook | a team chat. Dana: "I'm updating a few marketing page features, gonna use your frontend bench 🤩". Lee: "have fun! I spent a week polishing it 🫣" | someone is about to use a colleague's work |
+| reveal | the feature name, then the org's private registry with Lee's bench marked internal | that work lives somewhere the team can reach |
+| demo (signature) | Dana's own agent harness: she asks for the change, the bench runs, completes | she never left her flow |
+| demo | a padlock closes over the run while runtime, tools, skills, and a masked key check in | nothing to set up, nothing passed around |
+| payoff | the same exchange popping up across the team, sped up | everyone borrows everyone's expertise |
+| call | the brief's call to action and the contact URL | the next step |
+
+Retell: "Dana used the bench Lee spent a week on, and it brought everything
+it needed." Why it works: two named people, their real medium (chat, then a
+harness), a feeling (🤩, 🫣), and the product changes one thing in a moment
+the audience has lived. Do not copy its chat device by default; find the
+medium this product's users actually live in.

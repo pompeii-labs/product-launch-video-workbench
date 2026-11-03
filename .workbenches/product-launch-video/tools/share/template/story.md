@@ -15,6 +15,11 @@ use, believe, and are tired of. What would make them stop scrolling.
 
 The one true thing about this audience the video turns on. Not a feature.
 
+## Retell
+
+The one sentence a viewer would say to a friend after watching, with the person in
+it, in plain words (references/story.md §3).
+
 ## Proposition
 
 The single idea the viewer leaves with.

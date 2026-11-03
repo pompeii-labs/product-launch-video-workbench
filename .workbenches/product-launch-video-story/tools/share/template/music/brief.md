@@ -16,9 +16,12 @@ end card. Say what the music does at each, not what the video shows.
 
 ## Style
 
-Tempo in BPM and the key if it matters, first. Then four to seven concrete descriptors of
-genre, instrumentation, texture, and production, chosen for this product's voice and this
-audience (a terminal tool and a consumer app do not share a score). Instrumental.
+Tempo in BPM first. Then the energy and attitude in plain words a listener would use
+("funky, playful, confident", "tense, then bright and fast"), then the genre and the
+instruments that carry that energy, then production. Chosen for this product's voice and this
+audience (a terminal tool and a consumer app do not share a score). Never a mood adjective
+alone: "warm", "handmade", "friendly", "uplifting", "inspiring", "corporate" came back as hold
+music every time. Instrumental.
 
 ## Avoid
 

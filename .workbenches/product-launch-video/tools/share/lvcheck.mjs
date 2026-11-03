@@ -56,6 +56,8 @@ const SCENT = [
 // Loudness of the delivered mix: the web and social norm, measured on the rendered file.
 const LOUDNESS = { I: -14, TP: -2, LRA: 11, tolerance: 1.5, maxTP: -1.0, limit: 0.708 }; // limit: -3 dBFS sample peak, so the AAC encode stays under maxTP
 const MUSIC_BRIEF_SECTIONS = ["## Length", "## Moments", "## Style", "## Avoid"];
+// Round 1: every score briefed with these came back as stock/hold music.
+const MOOD_WORDS = /\b(warm|handmade|hand-made|friendly|uplifting|inspiring|inspirational|corporate|cozy|cosy|soothing|gentle)\b/i;
 const MODES = ["animated", "captured", "hybrid"];
 const ARC_FIELDS = ["audience", "insight", "proposition", "protagonist", "device", "tone", "mode", "modeWhy", "signature"];
 const STORY_SECTIONS = ["## Product", "## Audience", "## Insight", "## Arc"];
@@ -164,7 +166,12 @@ function checkManifest() {
     if (!fs.existsSync(path.join("public", track))) errs.push(`public/${track} does not exist; the score arrives through the music checkpoint before composing`);
     const mb = fs.existsSync("music/brief.md") ? fs.readFileSync("music/brief.md", "utf8") : "";
     if (!mb.trim()) errs.push("music/brief.md is missing; write the music brief before asking for the score");
-    else for (const h of MUSIC_BRIEF_SECTIONS) if (!mb.includes(h)) errs.push(`music/brief.md lacks "${h}"`);
+    else {
+      for (const h of MUSIC_BRIEF_SECTIONS) if (!mb.includes(h)) errs.push(`music/brief.md lacks "${h}"`);
+      const style = (mb.split("## Style")[1] ?? "").split(/\n## /)[0];
+      const mood = style.match(MOOD_WORDS);
+      if (mood) errs.push(`music/brief.md Style says "${mood[0]}": mood words came back as hold music; name the energy and attitude ("funky, playful, confident") and the instruments that carry it`);
+    }
   }
   const arc = m.arc ?? {};
   for (const k of ARC_FIELDS) if (typeof arc[k] !== "string" || !arc[k].trim()) errs.push(`arc.${k} is empty`);
@@ -245,6 +252,11 @@ function checkManifest() {
       if (body === null) errs.push(`story.md lacks "${h}"`);
       else if (words(body) < 25 || templateStory.includes(body.trim())) errs.push(`story.md "${h}" is not written yet (25 words at least)`);
     }
+  if (story.trim() && story !== templateStory) {
+    const retell = section("## Retell");
+    if (retell === null) errs.push(`story.md lacks "## Retell": the one sentence a viewer would tell a friend, with the person in it`);
+    else if (templateStory.includes(retell.trim()) || words(retell) < 8 || words(retell) > 45) errs.push(`story.md "## Retell" must be one plain sentence of 8 to 45 words`);
+  }
   if (capIndex.shots.length === 0) errs.push("nothing captured or imported (capture/index.json); research the product's pages first");
   for (const s of capIndex.shots.filter((s) => !s.ok)) warn(`capture "${s.id}" failed: ${s.error}`);
   if (errs.length) errs.forEach((e) => fail("manifest", e));

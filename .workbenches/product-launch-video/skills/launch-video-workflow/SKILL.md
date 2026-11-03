@@ -48,7 +48,8 @@ shape, the mode, the look, and the voice. Quote the product's words with
 their page ids.
 
 Do not write a beat until `story.md` names the one thing this video says that
-only this product could say.
+only this product could say, and its `## Retell` is one sentence with a
+person in it (`references/story.md` §3: default to people).
 
 ## 4. Footage
 
@@ -83,10 +84,13 @@ The timing is now fixed, so the score can be briefed.
 1. Write `video/music/brief.md` from the template `lvnew` created: the
    length, every moment the music must hit with its time from the manifest
    (where energy enters, the build, the reveal or turn, any held breath, the
-   end card), the style, and what to avoid. The style follows the product's
-   voice and this format: a changelog can be brisk, a launch can earn a
-   build and a drop, an explainer stays out of the way of reading. Never
-   "corporate", "uplifting", or "inspiring"; never vocals.
+   end card), the style, and what to avoid. The style leads with the energy and
+   attitude in plain words ("funky, playful, confident"), then the genre and
+   instruments that carry it; it follows the product's voice and this
+   format: a changelog can be brisk, a launch can earn a build and a drop, an
+   explainer stays out of the way of reading. Never a mood word alone
+   ("warm", "handmade", "friendly", "uplifting", "corporate": the gate fails
+   them, they came back as hold music); never vocals.
 2. Ask with the question tool, once:
    - question: "Music checkpoint. The brief is at video/music/brief.md.
      Put the score at video/public/music/track.mp3 (and its analysis at

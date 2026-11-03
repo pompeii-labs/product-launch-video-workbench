@@ -11,10 +11,11 @@ samples. `video/gate.json` mirrors the latest run.
   with the acts the format needs, the product's moment arriving in time; the
   signature in an act the format allows; the call beat showing `cta.text`;
   no stock move in written copy; in draft and final, the score at
-  `public/<music.track>` and `music/brief.md` with its four sections; a `ui` beat unless the mode is `animated`; `shows` and `means` on
+  `public/<music.track>` and `music/brief.md` with its four sections and no
+  mood word in its Style; a `ui` beat unless the mode is `animated`; `shows` and `means` on
   every beat; each beat's copy fits its length; every copy source verifies;
   every shot exists; `brief.md` is not empty; `story.md` has its Product,
-  Audience, Insight, and Arc sections; something was captured.
+  Audience, Insight, and Arc sections and a one-sentence Retell; something was captured.
 - **Source**: `src/lv/Probe.tsx` is byte-identical to the template and
   `src/Root.tsx` wraps the video in `<LvProbe>`. Draft and final also reject
   the `lvnew` skeleton and any remote URL in `src/`, `components/`, or `lib/`

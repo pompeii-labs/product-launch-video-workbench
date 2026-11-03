@@ -48,7 +48,38 @@ shape, the mode, the look, and the voice. Quote the product's words with
 their page ids.
 
 Do not write a beat until `story.md` names the one thing this video says that
-only this product could say.
+only this product could say, and its `## Retell` is one sentence with a
+person in it (`references/story.md` §3: default to people).
+
+### Concept checkpoint
+
+The story is the most expensive thing to fix after a render, and the place
+the model's default voice hides. In round 1 of this bench's trials the person
+threw out the bench's arc at a storyboard check and dictated a scene; that
+scene won. So offer scenes, early, before any footage or beat timing.
+
+1. After writing `story.md` sections Product, Audience, and Insight, write
+   `video/story-check.md` with three concepts. Each concept:
+   - a short title;
+   - who (named people, their role) and the medium the scene lives in;
+   - the moment, in two or three sentences, with what the people feel;
+   - its retell sentence;
+   - the beats in the format's shape, one line each, with the hook line and
+     the end card (the brief's call to action) exactly as they would read.
+   The three differ in the moment and the people, not only in device. At
+   most one may use an abstract device (mascot, metaphor), and it says why.
+   Nothing else in the file: no recommendation, no rationale beyond that.
+2. Ask with the question tool, once:
+   - question: "Concept checkpoint. Read video/story-check.md. Pick a
+     concept, or write your own (any notes are welcome)."
+   - options: one per concept, labelled "1: <title>", "2: <title>",
+     "3: <title>".
+   Note the time you asked.
+3. When the answer arrives, note the time. Build the picked concept; apply
+   any notes word for word (lines the person wrote go on screen as written,
+   sourced `brief`, and are appended verbatim to `brief.md`). A written
+   concept of their own replaces all three. Then finish `story.md` (Retell,
+   Proposition, Arc, and the rest) from it. There is no second story check.
 
 ## 4. Footage
 
@@ -76,37 +107,21 @@ viewer would. Score it against the Story and Close axes in
 another product, rewrite the arc, not the animation. Rerun until the frames
 tell this product's story.
 
-### Story checkpoint
-
-The story is the most expensive thing to fix after a render, and the place
-the model's default voice hides. Before any motion work, show it to the
-person once, as the smallest thing that settles it.
-
-1. Write `video/story-check.md`: the format, the proposition in one line, then
-   one row per beat (time, act, what it shows, every on-screen line exactly as
-   it will read), and the end card with the call to action as it will appear.
-   Nothing else: no rationale, no options.
-2. Ask with the question tool:
-   - question: "Story checkpoint. Read video/story-check.md and
-     video/storyboard.png. Approve, or say what to change."
-   - options: "Approved", "Change it (my notes follow)".
-   Note the time you asked.
-3. When the answer arrives, note the time. "Approved" goes on to the music
-   checkpoint. Notes change the arc or the copy as asked, nothing else; then
-   rerun `lvcheck --storyboard`, rewrite `story-check.md`, and ask once more.
-   After a second round of notes, apply them and continue without asking again.
 
 ## 7. Music checkpoint
 
-The story is approved and the timing is fixed, so the score can be briefed.
+The concept is picked and the timing is fixed, so the score can be briefed.
 
 1. Write `video/music/brief.md` from the template `lvnew` created: the
    length, every moment the music must hit with its time from the manifest
    (where energy enters, the build, the reveal or turn, any held breath, the
-   end card), the style, and what to avoid. The style follows the product's
-   voice and this format: a changelog can be brisk, a launch can earn a
-   build and a drop, an explainer stays out of the way of reading. Never
-   "corporate", "uplifting", or "inspiring"; never vocals.
+   end card), the style, and what to avoid. The style leads with the energy and
+   attitude in plain words ("funky, playful, confident"), then the genre and
+   instruments that carry it; it follows the product's voice and this
+   format: a changelog can be brisk, a launch can earn a build and a drop, an
+   explainer stays out of the way of reading. Never a mood word alone
+   ("warm", "handmade", "friendly", "uplifting", "corporate": the gate fails
+   them, they came back as hold music); never vocals.
 2. Ask with the question tool, once:
    - question: "Music checkpoint. The brief is at video/music/brief.md.
      Put the score at video/public/music/track.mp3 (and its analysis at
